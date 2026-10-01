@@ -1,11 +1,15 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
 import clsx from "clsx";
 import { Button } from "flowbite-react";
 import { useEsfAerResumo } from "@/hooks/queries";
-import { getGroupSummaries } from "./utils";
+import {
+   getGroupSummaries,
+   parseAnoParam,
+   type FocoDivergencia,
+} from "./utils";
 import { EsfAerHeader } from "./components/EsfAerHeader";
 import { EsfAerSkeleton } from "./components/EsfAerSkeleton";
 import { EsfAerGroupCards } from "./components/EsfAerGroupCards";
@@ -14,31 +18,24 @@ import { EsfAerAlertTable } from "./components/EsfAerAlertTable";
 import { EsfAerChartLine } from "./components/EsfAerChartLine";
 import { EsfAerChartTable } from "./components/EsfAerChartTable";
 import { ImportModal } from "./components/import/ImportModal";
-import { PermBased } from "../../hooks/usePermBased";
+import { PermBased, usePermBased } from "../../hooks/usePermBased";
 
 export default function EsfAerPage() {
    const currentYear = new Date().getFullYear();
-   const [anoRef, setAnoRef] = useState(currentYear);
    const [showImportModal, setShowImportModal] = useState(false);
+   const { hasPerm } = usePermBased();
 
-   // Flag do simulador espelhada na URL (compartilhável); presente apenas
-   // quando ligada — o padrão (desligada) mantém a URL limpa.
-   const searchParams = useSearchParams();
-   const router = useRouter();
+   const { searchParams, setParams } = useSearchParamsUpdater();
+   const anoRef = parseAnoParam(searchParams.get("ano"), currentYear);
    const showSimulador = searchParams.get("simulador") === "true";
 
+   const setAnoRef = useCallback(
+      (value: number) => setParams({ ano: String(value) }),
+      [setParams]
+   );
    const setShowSimulador = useCallback(
-      (value: boolean) => {
-         const params = new URLSearchParams(searchParams.toString());
-         if (value) {
-            params.set("simulador", "true");
-         } else {
-            params.delete("simulador");
-         }
-         const qs = params.toString();
-         router.replace(qs ? `?${qs}` : "?", { scroll: false });
-      },
-      [searchParams, router]
+      (value: boolean) => setParams({ simulador: value ? "true" : undefined }),
+      [setParams]
    );
 
    const { data, isLoading, isFetching, isError, error, refetch } =
@@ -47,12 +44,69 @@ export default function EsfAerPage() {
 
    // O backend ja devolve itens e totais consistentes com a flag do
    // simulador; o front apenas exibe e deriva o agrupamento por grupo.
-   const items = data?.items ?? [];
+   const items = useMemo(() => data?.items ?? [], [data]);
    const totalAlocado = data?.total_alocado ?? 0;
    const totalVoado = data?.total_voado ?? 0;
    const totalSaldo = data?.total_saldo ?? 0;
    const totalMesesVoados = data?.total_meses_voados ?? Array(12).fill(0);
    const groupSummaries = useMemo(() => getGroupSummaries(items), [items]);
+
+   // Célula pedida no painel de divergência. É derivada: some sozinha quando o
+   // ano ou o simulador mudam, ou quando a célula deixa de divergir (refetch).
+   const [focoSolicitado, setFocoSolicitado] = useState<FocoDivergencia | null>(
+      null
+   );
+   const foco =
+      focoSolicitado &&
+      focoSolicitado.ano === anoRef &&
+      focoSolicitado.simulador === showSimulador &&
+      items.some(
+         (i) =>
+            i.id === focoSolicitado.esfaerId &&
+            i.meses_voados[focoSolicitado.mes] !==
+               i.meses_sagem[focoSolicitado.mes]
+      )
+         ? focoSolicitado
+         : null;
+
+   // Pedido que deixou de valer (ano/simulador mudou, célula parou de
+   // divergir): descarta durante o render, senão voltar ao estado anterior
+   // (cache) o reabriria sozinho. Ajuste de estado no render, sem useEffect.
+   if (focoSolicitado && !foco) setFocoSolicitado(null);
+
+   // Objeto novo a cada clique: clicar de novo na mesma linha refaz a rolagem
+   // e reabre o popover fechado.
+   const localizarDivergencia = useCallback(
+      (esfaerId: number, mes: number) =>
+         setFocoSolicitado({
+            esfaerId,
+            mes,
+            ano: anoRef,
+            simulador: showSimulador,
+         }),
+      [anoRef, showSimulador]
+   );
+
+   const fecharFoco = useCallback(
+      (devolverFoco: boolean) => {
+         setFocoSolicitado(null);
+         if (!devolverFoco || !foco) return;
+         const { esfaerId, mes } = foco;
+         // O popover sai do DOM e o foco cairia no body. Só no fechamento por
+         // teclado (Esc) devolve ao botão da linha do painel que o abriu: no clique
+         // fora o foco programático faria o Chromium aplicar :focus-visible.
+         setTimeout(() => {
+            const ativo = document.activeElement;
+            if (ativo && ativo !== document.body) return;
+            document
+               .querySelector<HTMLElement>(
+                  `[data-divergencia-linha="${esfaerId}-${mes}"] button`
+               )
+               ?.focus({ preventScroll: true });
+         }, 0);
+      },
+      [foco]
+   );
 
    return (
       <div className="space-y-2">
@@ -124,7 +178,11 @@ export default function EsfAerPage() {
                      resource="estatistica.esf_aer"
                      requiredPerm="update"
                   >
-                     <EsfAerAlertTable items={items} />
+                     <EsfAerAlertTable
+                        items={items}
+                        foco={foco}
+                        onLocalizar={localizarDivergencia}
+                     />
                   </PermBased>
                   <EsfAerTable
                      items={items}
@@ -132,6 +190,12 @@ export default function EsfAerPage() {
                      totalVoado={totalVoado}
                      totalSaldo={totalSaldo}
                      totalMesesVoados={totalMesesVoados}
+                     foco={foco}
+                     onFecharFoco={fecharFoco}
+                     destacarDivergencias={hasPerm(
+                        "estatistica.esf_aer",
+                        "update"
+                     )}
                   />
                   <EsfAerGroupCards groups={groupSummaries} />
 

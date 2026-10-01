@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useUpdateEsfAer } from "@/hooks/queries";
 import { useToast } from "@/app/context/toast";
 import { parseEsfAerData } from "../utils";
+import {
+   fieldErrorsFrom,
+   humanizeValidationErrors,
+} from "@/../utils/apiErrors";
 import type { EsfAerImportRow, EsfAerParseError } from "../utils";
 import type {
    EsfAerUpdateItem,
@@ -22,7 +26,7 @@ function toUpdateItems(rows: EsfAerImportRow[]): EsfAerUpdateItem[] {
 }
 
 export function hasChanges(res: EsfAerImportResponse): boolean {
-   return res.rows.some((r) => r.antes !== r.depois);
+   return res.rows.length > 0;
 }
 
 /**
@@ -31,7 +35,7 @@ export function hasChanges(res: EsfAerImportResponse): boolean {
  * não-visuais, deixando os componentes responsáveis apenas pela apresentação.
  */
 export function useEsfAerImport(anoRef: number) {
-   const [rawText, setRawText] = useState("");
+   const [rawText, setRawTextValue] = useState("");
    const [parsedRows, setParsedRows] = useState<EsfAerImportRow[]>([]);
    const [errors, setErrors] = useState<EsfAerParseError[]>([]);
    const [showConfirm, setShowConfirm] = useState(false);
@@ -40,6 +44,12 @@ export function useEsfAerImport(anoRef: number) {
 
    const mutation = useUpdateEsfAer();
    const { push } = useToast();
+
+   const setRawText = (value: string) => {
+      setRawTextValue(value);
+      setParsedRows([]);
+      setErrors([]);
+   };
 
    const reset = () => {
       setRawText("");
@@ -73,9 +83,42 @@ export function useEsfAerImport(anoRef: number) {
             });
          }
          return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
+         const fieldErrors = fieldErrorsFrom(err);
+         const sourceLineErrors = fieldErrors
+            ? Object.fromEntries(
+                 Object.entries(fieldErrors).map(([key, value]) => [
+                    key.replace(
+                       /(^|\.)items\.(\d+)(?=\.|$)/,
+                       (match, prefix: string, index: string) => {
+                          const row = parsedRows[Number(index)];
+                          // O humanizador soma 1 ao índice para exibir a linha.
+                          return row
+                             ? `${prefix}items.${row.linha - 1}`
+                             : match;
+                       }
+                    ),
+                    value,
+                 ])
+              )
+            : null;
+         const message =
+            err instanceof Error ? err.message : "Erro ao importar dados";
+         const details = sourceLineErrors
+            ? humanizeValidationErrors(sourceLineErrors, {
+                 fields: {
+                    items: "Linha",
+                    horas_alocadas: "Alocadas",
+                    meses_sagem: "Meses",
+                    ano_ref: "Ano",
+                 },
+                 arrays: { items: "Linha" },
+              })
+            : [];
          push({
-            message: err?.message || "Erro ao importar dados",
+            message: [message, ...details.map((detail) => `• ${detail}`)].join(
+               "\n"
+            ),
             type: "error",
          });
          setShowConfirm(false);

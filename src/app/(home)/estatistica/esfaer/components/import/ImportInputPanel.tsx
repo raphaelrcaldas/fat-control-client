@@ -29,7 +29,11 @@ export function ImportInputPanel({
          />
 
          <div className="flex gap-2">
-            <Button color="red" onClick={onParse} disabled={!rawText.trim()}>
+            <Button
+               color="primary"
+               onClick={onParse}
+               disabled={!rawText.trim()}
+            >
                Parsear Dados
             </Button>
             {parsedRows.length > 0 && errors.length === 0 && (
@@ -45,19 +49,27 @@ export function ImportInputPanel({
          </div>
 
          {errors.length > 0 && (
-            <div className="rounded border border-red-300 bg-red-50 p-3">
+            <div
+               role="alert"
+               className="rounded border border-red-300 bg-red-50 p-3"
+            >
                <p className="mb-2 text-sm font-semibold text-red-700">
-                  {errors.length} linha(s) com erro - corrija os dados e tente
-                  novamente:
+                  {errors.length} erro(s) - corrija os dados e tente novamente:
                </p>
                <ul className="space-y-1">
                   {errors.map((err) => (
                      <li key={err.linha} className="text-xs text-red-600">
-                        <span className="font-medium">Linha {err.linha}:</span>{" "}
+                        <span className="font-medium">
+                           {err.linha > 0
+                              ? `Linha ${err.linha}:`
+                              : "Importação:"}
+                        </span>{" "}
                         {err.motivo}
-                        <span className="ml-1 text-red-400">
-                           ({err.conteudo}...)
-                        </span>
+                        {err.conteudo && (
+                           <span className="ml-1 text-red-400">
+                              ({err.conteudo}...)
+                           </span>
+                        )}
                      </li>
                   ))}
                </ul>

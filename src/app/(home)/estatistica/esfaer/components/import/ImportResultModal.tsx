@@ -160,7 +160,7 @@ export function ImportResultModal({ result, onClose }: ImportResultModalProps) {
                   </div>
                   <div className="mt-4 flex justify-center">
                      <Button
-                        color="red"
+                        color="primary"
                         onClick={handleDownload}
                         disabled={isCapturing}
                         aria-busy={isCapturing}

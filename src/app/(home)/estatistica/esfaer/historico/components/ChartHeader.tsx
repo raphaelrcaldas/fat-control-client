@@ -11,7 +11,7 @@ interface ChartHeaderProps extends ChartReadouts {
 }
 
 /**
- * Cabeçalho do gráfico: a leitura das séries ativas (valor e Δ de cada uma) e,
+ * Cabeçalho do gráfico: a leitura das séries ativas (valor vigente de cada uma) e,
  * quando há isolamento, a ação de sair dele.
  *
  * A leitura mora aqui, junto do gráfico que ela descreve — os chips da toolbar
@@ -68,7 +68,7 @@ export function ChartHeader({
                type="button"
                onClick={onClearIsolated}
                title={`Sair do isolamento de ${isoladoNome}`}
-               className="border-primary-100 bg-primary-50 text-primary-700 hover:bg-primary-100 inline-flex max-w-full items-center gap-1 rounded border py-0.5 pr-1.5 pl-2 text-xs font-medium transition-colors"
+               className="border-primary-100 bg-primary-50 text-primary-700 hover:bg-primary-100 inline-flex min-h-[24px] max-w-full items-center gap-1 rounded border py-0.5 pr-1.5 pl-2 text-xs font-medium transition-colors"
             >
                <span className="truncate">sair do isolamento</span>
                <TbX aria-hidden className="h-3.5 w-3.5 shrink-0" />

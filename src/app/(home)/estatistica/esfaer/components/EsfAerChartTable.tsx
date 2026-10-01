@@ -33,7 +33,7 @@ export function EsfAerChartTable({
       >
          <TableHead>
             <TableRow>
-               <TableHeadCell>MES</TableHeadCell>
+               <TableHeadCell>MÊS</TableHeadCell>
                <TableHeadCell className="text-center">PLANEJADO</TableHeadCell>
                <TableHeadCell className="text-center">VOADO</TableHeadCell>
                <TableHeadCell className="text-center">ACUMULADO</TableHeadCell>

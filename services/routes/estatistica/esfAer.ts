@@ -1,4 +1,4 @@
-import request, { readApiData } from "../../Api";
+import request, { ApiError, parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse } from "@/types/api";
 
 const esfAerRoute = "estatistica/esfaer/";
@@ -19,12 +19,19 @@ export async function getEsfAerList(
       signal
    );
    const json = await readApiData<ApiResponse<EsfAerItem[]>>(response);
-   return json.data || [];
+   if (!json?.data) {
+      throw new Error(
+         json?.message ??
+            `Falha ao carregar os esforços aéreos (HTTP ${response.status})`
+      );
+   }
+   return json.data;
 }
 
 export interface EsfAerResumoItem {
    id: number;
    descricao: string;
+   grupo: string;
    alocado: number;
    voado: number;
    saldo: number;
@@ -74,15 +81,20 @@ export async function updateEsfAer(
    data: EsfAerUpdateRequest
 ): Promise<EsfAerImportResponse> {
    const response = await request("PUT", esfAerRoute, data);
-   const json = (await response.json()) as ApiResponse<EsfAerImportResponse>;
-   return (
-      json.data ?? {
-         ano_ref: data.ano_ref,
-         rows: [],
-         total_antes: 0,
-         total_depois: 0,
-      }
-   );
+   const {
+      ok,
+      data: result,
+      message,
+      errors,
+   } = await parseApiResponse<EsfAerImportResponse>(response);
+   if (!ok || result === null) {
+      throw new ApiError(
+         message ?? `Erro ${response.status} ao importar`,
+         errors,
+         response.status
+      );
+   }
+   return result;
 }
 
 /**
@@ -180,14 +192,10 @@ export async function getEsfAerResumo(
       signal
    );
    const json = await readApiData<ApiResponse<EsfAerResumoResponse>>(response);
-   return (
-      json.data ?? {
-         items: [],
-         total_alocado: 0,
-         total_voado: 0,
-         total_saldo: 0,
-         total_meses_sagem: Array(12).fill(0),
-         total_meses_voados: Array(12).fill(0),
-      }
-   );
+   if (!json?.data) {
+      throw new Error(
+         json?.message ?? `Falha ao carregar o resumo (HTTP ${response.status})`
+      );
+   }
+   return json.data;
 }

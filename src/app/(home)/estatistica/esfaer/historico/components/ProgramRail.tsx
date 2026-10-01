@@ -155,8 +155,8 @@ export function ProgramRail({
                   type="button"
                   onClick={() => onQueryChange("")}
                   aria-label="Limpar busca"
-                  // w-7: alvo de 28px de largura — acima dos 24px do WCAG
-                  // 2.5.8 para mouse (esta rota não é exposta no mobile).
+                  // w-7: 24,5px com raiz de 87,5% — acima dos 24px do
+                  // WCAG 2.5.8 em qualquer ponteiro.
                   className="absolute inset-y-0 right-0 flex w-7 items-center justify-center text-slate-500 hover:text-slate-700"
                >
                   <TbX className="h-4 w-4" />

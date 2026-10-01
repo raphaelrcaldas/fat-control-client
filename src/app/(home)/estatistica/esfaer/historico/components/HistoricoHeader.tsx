@@ -14,6 +14,11 @@ export function HistoricoHeader({
    anoRef,
    onAnoRefChange,
 }: HistoricoHeaderProps) {
+   // Links históricos mantêm seu ano disponível sem mudar o catálogo do painel.
+   const yearOptions = Array.from(new Set([...YEAR_OPTIONS, anoRef])).sort(
+      (a, b) => a - b
+   );
+
    return (
       <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
          <span
@@ -28,7 +33,7 @@ export function HistoricoHeader({
                </div>
                <div className="min-w-0">
                   <Link
-                     href="/estatistica/esfaer"
+                     href={`/estatistica/esfaer?ano=${anoRef}`}
                      className="group hover:text-primary-600 -ml-0.5 inline-flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-[0.3em] text-slate-500 uppercase transition-colors"
                   >
                      <TbArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
@@ -56,7 +61,7 @@ export function HistoricoHeader({
                   onChange={(e) => onAnoRefChange(Number(e.target.value))}
                   className="w-24"
                >
-                  {YEAR_OPTIONS.map((year) => (
+                  {yearOptions.map((year) => (
                      <option key={year} value={year}>
                         {year}
                      </option>

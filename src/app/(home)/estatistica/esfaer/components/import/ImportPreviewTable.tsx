@@ -8,7 +8,7 @@ import {
 } from "flowbite-react";
 import { minutesToTime } from "@/../utils/dateHandler";
 import { MONTH_LABELS } from "../../constants";
-import type { EsfAerImportRow } from "../../utils";
+import { formatMinutes, type EsfAerImportRow } from "../../utils";
 
 interface ImportPreviewTableProps {
    rows: EsfAerImportRow[];
@@ -73,9 +73,9 @@ export function ImportPreviewTable({ rows }: ImportPreviewTableProps) {
                   <TableCell className="font-semibold">
                      {minutesToTime(row.horasAlocadas)}
                   </TableCell>
-                  <TableCell>{minutesToTime(row.horasGastas)}</TableCell>
+                  <TableCell>{formatMinutes(row.horasGastas)}</TableCell>
                   <TableCell className="font-semibold">
-                     {minutesToTime(row.saldoHoras)}
+                     {formatMinutes(row.saldoHoras)}
                   </TableCell>
                </TableRow>
             ))}

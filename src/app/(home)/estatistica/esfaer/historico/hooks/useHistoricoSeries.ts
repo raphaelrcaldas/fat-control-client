@@ -8,25 +8,11 @@ import {
    type ChangeMeta,
 } from "../utils";
 import type { CarryForward } from "./useCarryForward";
+import type { HistoricoVisibility } from "./useHistoricoVisibility";
 import type {
    EsfAerHistorico,
    HistPoint,
 } from "services/routes/estatistica/esfAer";
-
-/**
- * Descritor de visibilidade vindo do estado da página. `series`/`colors`/etc. são
- * recomputados a partir dele.
- */
-export interface HistoricoVisibility {
-   /** Total visível — respeitado também no modo isolado (não é forçado ON). */
-   totalVisible: boolean;
-   /** Visibilidade de cada série Σ por grupo (ausente = oculto). */
-   groups: Record<string, boolean>;
-   /** Visibilidade por programa (`esfaer_id → visível`; ausente = OCULTO). */
-   toggled: Record<number, boolean>;
-   /** Quando preenchido, mostra só Total + este programa. */
-   isolated: number | null;
-}
 
 /**
  * Arrays POSICIONAIS em lockstep para o ApexCharts. `series[i]` corresponde a

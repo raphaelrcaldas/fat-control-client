@@ -1,7 +1,21 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import type { HistoricoVisibility } from "./useHistoricoSeries";
+
+/**
+ * Descritor de visibilidade vindo do estado da página. `series`/`colors`/etc. são
+ * recomputados a partir dele.
+ */
+export interface HistoricoVisibility {
+   /** Total visível — respeitado também no modo isolado (não é forçado ON). */
+   totalVisible: boolean;
+   /** Visibilidade de cada série Σ por grupo (ausente = oculto). */
+   groups: Record<string, boolean>;
+   /** Visibilidade por programa (`esfaer_id → visível`; ausente = OCULTO). */
+   toggled: Record<number, boolean>;
+   /** Quando preenchido, mostra só Total + este programa. */
+   isolated: number | null;
+}
 
 export interface HistoricoVisibilityControls {
    visibility: HistoricoVisibility;

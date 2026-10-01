@@ -12,7 +12,6 @@ export interface EsfAerMonthlyRow {
 export interface EsfAerMonthly {
    rows: EsfAerMonthlyRow[];
    voadoMax: number;
-   lastFlownIndex: number;
 }
 
 /**
@@ -49,6 +48,6 @@ export function useEsfAerMonthly(
          };
       });
 
-      return { rows, voadoMax, lastFlownIndex };
+      return { rows, voadoMax };
    }, [totalAlocado, totalMeses]);
 }

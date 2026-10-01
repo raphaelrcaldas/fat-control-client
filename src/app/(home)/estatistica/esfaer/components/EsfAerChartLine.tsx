@@ -16,6 +16,12 @@ export function EsfAerChartLine({
    totalMeses,
 }: EsfAerChartLineProps) {
    const { rows, voadoMax } = useEsfAerMonthly(totalAlocado, totalMeses);
+   const lastAccumulated =
+      rows.findLast((row) => row.acumulado !== null)?.acumulado ?? 0;
+   const accumulatedMax = Math.round(
+      Math.max(totalAlocado, lastAccumulated) * 1.1
+   );
+   const monthlyMax = Math.round(voadoMax * 3);
 
    const chartSeries = useMemo(
       () => [
@@ -75,7 +81,7 @@ export function EsfAerChartLine({
             {
                seriesName: "PLANEJADO",
                min: 0,
-               max: Math.round(totalAlocado * 1.1),
+               ...(accumulatedMax > 0 ? { max: accumulatedMax } : {}),
                tickAmount: 6,
                title: { text: "Acumulado / Planejado" },
                labels: {
@@ -90,7 +96,7 @@ export function EsfAerChartLine({
                seriesName: "VOADO",
                opposite: true,
                min: 0,
-               max: Math.round(voadoMax * 3),
+               ...(monthlyMax > 0 ? { max: monthlyMax } : {}),
                tickAmount: 6,
                title: { text: "Voado (mensal)" },
                labels: {
@@ -111,7 +117,7 @@ export function EsfAerChartLine({
             borderColor: "#E5E7EB",
          },
       }),
-      [totalAlocado, voadoMax]
+      [accumulatedMax, monthlyMax]
    );
 
    return (

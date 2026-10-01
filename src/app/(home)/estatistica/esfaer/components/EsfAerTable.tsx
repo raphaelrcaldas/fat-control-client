@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import {
+   Popover,
    Table,
    TableHead,
    TableHeadCell,
@@ -10,7 +12,12 @@ import clsx from "clsx";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { EsfAerResumoItem } from "services/routes/estatistica/esfAer";
 import { MONTH_LABELS } from "../constants";
-import { formatMinutes, getDescricaoStyles } from "../utils";
+import {
+   formatMinutes,
+   getDescricaoStyles,
+   type FocoDivergencia,
+} from "../utils";
+import { DivergenciaPopoverContent } from "./DivergenciaPopoverContent";
 
 interface EsfAerTableProps {
    items: EsfAerResumoItem[];
@@ -18,6 +25,14 @@ interface EsfAerTableProps {
    totalVoado: number;
    totalSaldo: number;
    totalMesesVoados: number[];
+   foco: FocoDivergencia | null;
+   /**
+    * Chamado ao fechar o popover. `devolverFoco` é true só no fechamento por
+    * teclado (Esc); no clique fora o foco fica onde o usuário clicou.
+    */
+   onFecharFoco: (devolverFoco: boolean) => void;
+   /** Destaca em âmbar claro toda célula de mês que diverge da SAGEM. */
+   destacarDivergencias?: boolean;
 }
 
 export function EsfAerTable({
@@ -26,9 +41,37 @@ export function EsfAerTable({
    totalVoado,
    totalSaldo,
    totalMesesVoados,
+   foco,
+   onFecharFoco,
+   destacarDivergencias = false,
 }: EsfAerTableProps) {
+   // Ref no wrapper externo, nunca no filho do Popover: o Popover clona o filho
+   // com o ref da âncora e um ref nosso o sobrescreveria (ver
+   // docs/ai/notes/frontend-armadilhas.md).
+   const wrapperRef = useRef<HTMLDivElement>(null);
+
+   // `foco` é um objeto novo a cada pedido de localização, então clicar de novo
+   // na mesma linha do painel rola outra vez.
+   useEffect(() => {
+      if (!foco) return;
+      const celula = wrapperRef.current?.querySelector(
+         `[data-divergencia="${foco.esfaerId}-${foco.mes}"]`
+      );
+      const reduzMovimento = window.matchMedia(
+         "(prefers-reduced-motion: reduce)"
+      ).matches;
+      celula?.scrollIntoView({
+         behavior: reduzMovimento ? "auto" : "smooth",
+         block: "center",
+         inline: "center",
+      });
+   }, [foco]);
+
    return (
-      <div className="w-full overflow-x-auto rounded border border-slate-200 bg-white font-mono">
+      <div
+         ref={wrapperRef}
+         className="w-full overflow-x-auto rounded border border-slate-200 bg-white font-mono"
+      >
          <Table
             striped
             theme={{
@@ -82,16 +125,59 @@ export function EsfAerTable({
                      >
                         {formatMinutes(item.saldo)}
                      </TableCell>
-                     {item.meses_voados.map((val, i) => (
-                        <TableCell
-                           key={MONTH_LABELS[i]}
-                           className={clsx("text-slate-300", {
-                              "font-bold text-slate-500": val > 0,
-                           })}
-                        >
-                           {minutesToTime(val)}
-                        </TableCell>
-                     ))}
+                     {item.meses_voados.map((val, i) => {
+                        const focada =
+                           foco?.esfaerId === item.id && foco.mes === i;
+                        const diverge =
+                           destacarDivergencias && val !== item.meses_sagem[i];
+                        return (
+                           <TableCell
+                              key={MONTH_LABELS[i]}
+                              data-divergencia={`${item.id}-${i}`}
+                              className={clsx(
+                                 "text-slate-300",
+                                 { "font-bold text-slate-500": val > 0 },
+                                 // Fundo na célula (o twMerge do TableCell vence
+                                 // striped e hover da linha). A focada, mais forte,
+                                 // vem depois e prevalece.
+                                 diverge && "bg-amber-100",
+                                 focada &&
+                                    "bg-amber-200 font-bold text-slate-700 ring-2 ring-amber-500 ring-inset"
+                              )}
+                           >
+                              {focada ? (
+                                 <Popover
+                                    open
+                                    aria-label={`Divergência de ${item.descricao} em ${MONTH_LABELS[i]}`}
+                                    onOpenChange={(
+                                       aberto,
+                                       _evento?: Event,
+                                       motivo?: string
+                                    ) => {
+                                       if (aberto === false)
+                                          onFecharFoco(motivo === "escape-key");
+                                    }}
+                                    trigger="click"
+                                    placement="auto"
+                                    content={
+                                       <DivergenciaPopoverContent
+                                          descricao={item.descricao}
+                                          mes={i}
+                                          sagem={item.meses_sagem[i]}
+                                          voado={val}
+                                       />
+                                    }
+                                 >
+                                    <span className="cursor-pointer">
+                                       {minutesToTime(val)}
+                                    </span>
+                                 </Popover>
+                              ) : (
+                                 minutesToTime(val)
+                              )}
+                           </TableCell>
+                        );
+                     })}
                   </TableRow>
                ))}
 

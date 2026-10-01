@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { minutesToTime, timeToMinutes } from "@/../utils/dateHandler";
 import type { EsfAerResumoItem } from "services/routes/estatistica/esfAer";
+import { KNOWN_GRUPOS } from "./historico/constants";
 
 export interface GroupSummary {
    label: string;
@@ -9,13 +10,17 @@ export interface GroupSummary {
    saldo: number;
 }
 
-const GROUPS = ["COMPREP", "COMAE", "DCTA"] as const;
-
 export function getGroupSummaries(items: EsfAerResumoItem[]): GroupSummary[] {
-   return GROUPS.map((group) => {
-      const groupItems = items.filter((item) =>
-         item.descricao.startsWith(group)
-      );
+   const groups = [...new Set(items.map((item) => item.grupo))].sort((a, b) => {
+      const aIndex = KNOWN_GRUPOS.indexOf(a);
+      const bIndex = KNOWN_GRUPOS.indexOf(b);
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return a.localeCompare(b, "pt-BR");
+   });
+   return groups.map((group) => {
+      const groupItems = items.filter((item) => item.grupo === group);
       return {
          label: group,
          alocado: groupItems.reduce((sum, i) => sum + i.alocado, 0),
@@ -23,6 +28,18 @@ export function getGroupSummaries(items: EsfAerResumoItem[]): GroupSummary[] {
          saldo: groupItems.reduce((sum, i) => sum + i.saldo, 0),
       };
    });
+}
+
+/**
+ * Célula (esforço × mês) que o usuário mandou localizar a partir do painel de
+ * divergência. Guarda o ano e o simulador em que nasceu para a página
+ * descartá-la quando o filtro muda, sem precisar de efeito para zerar estado.
+ */
+export interface FocoDivergencia {
+   esfaerId: number;
+   mes: number;
+   ano: number;
+   simulador: boolean;
 }
 
 /**
@@ -47,6 +64,7 @@ export function formatSignedMinutes(value: number): string {
 }
 
 export interface EsfAerImportRow {
+   linha: number;
    tipo: string;
    modelo: string;
    grupo: string;
@@ -71,7 +89,13 @@ export interface EsfAerParseResult {
 }
 
 const EXPECTED_COLS = 21;
-const TIME_REGEX = /^-?\d{1,4}:\d{2}$/;
+const TIME_REGEX = /^-?\d{1,4}:[0-5]\d$/;
+
+export function parseAnoParam(raw: string | null, fallback: number): number {
+   if (!/^\d{4}$/.test(raw ?? "")) return fallback;
+   const ano = Number(raw);
+   return ano >= 2020 && ano <= 9999 ? ano : fallback;
+}
 
 /**
  * Parses "HH:mm" or "HH:mm (X%)" to minutes. Returns 0 for "-" or empty.
@@ -79,7 +103,7 @@ const TIME_REGEX = /^-?\d{1,4}:\d{2}$/;
 function parseTimeCell(value: string): number {
    const trimmed = value.trim();
    if (!trimmed || trimmed === "-") return 0;
-   const timeOnly = trimmed.replace(/\s*\(.*\)/, "");
+   const timeOnly = trimmed.replace(/\s*\(.*\)/, "").trim();
    if (timeOnly.startsWith("-")) {
       return -timeToMinutes(timeOnly.slice(1));
    }
@@ -99,17 +123,21 @@ function isValidTimeCell(value: string): boolean {
  * Returns parsed rows and any validation errors.
  */
 export function parseEsfAerData(raw: string): EsfAerParseResult {
-   const lines = raw.trim().split("\n");
+   const lines = raw.replace(/[\r\n]+$/, "").split("\n");
    const rows: EsfAerImportRow[] = [];
    const errors: EsfAerParseError[] = [];
+   const firstLineByKey = new Map<string, number>();
+   let dataLineCount = 0;
 
    for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+      if (!line.trim()) continue;
       const cols = line.split("\t").map((c) => c.trim());
       const lineNum = i + 1;
 
       const tipo = cols[0];
       if (tipo === "TIPO" || tipo === "TOTAIS") continue;
+      dataLineCount++;
 
       if (cols.length < EXPECTED_COLS) {
          errors.push({
@@ -130,6 +158,18 @@ export function parseEsfAerData(raw: string): EsfAerParseResult {
          continue;
       }
 
+      const key = JSON.stringify(cols.slice(0, 6));
+      const firstLine = firstLineByKey.get(key);
+      if (firstLine !== undefined) {
+         errors.push({
+            linha: lineNum,
+            conteudo: line.substring(0, 80),
+            motivo: `Repete a linha ${firstLine}`,
+         });
+         continue;
+      }
+      firstLineByKey.set(key, lineNum);
+
       const timeCols = [...cols.slice(6, 18), cols[18], cols[19], cols[20]];
       const invalidTime = timeCols.find((c) => !isValidTimeCell(c));
       if (invalidTime !== undefined) {
@@ -142,8 +182,36 @@ export function parseEsfAerData(raw: string): EsfAerParseResult {
       }
 
       const meses = cols.slice(6, 18).map(parseTimeCell);
+      const excessiveMonth = meses.find((value) => value > 32767);
+      if (excessiveMonth !== undefined) {
+         errors.push({
+            linha: lineNum,
+            conteudo: line.substring(0, 80),
+            motivo: `Valor mensal ${minutesToTime(excessiveMonth)} excede o limite de 546:05`,
+         });
+         continue;
+      }
+
+      const sentTimeCols = cols.slice(6, 19);
+      const invalidSentTime = sentTimeCols.find((cell) => {
+         const value = parseTimeCell(cell);
+         return (
+            (cell.trim().startsWith("-") && cell.trim() !== "-") ||
+            value < 0 ||
+            value % 5 !== 0
+         );
+      });
+      if (invalidSentTime !== undefined) {
+         errors.push({
+            linha: lineNum,
+            conteudo: line.substring(0, 80),
+            motivo: `Meses e ALOCADAS devem ser não negativos e múltiplos de 5 minutos: "${invalidSentTime.trim()}"`,
+         });
+         continue;
+      }
 
       rows.push({
+         linha: lineNum,
          tipo,
          modelo: cols[1],
          grupo: cols[2],
@@ -157,7 +225,33 @@ export function parseEsfAerData(raw: string): EsfAerParseResult {
       });
    }
 
+   if (dataLineCount > 500) {
+      errors.push({
+         linha: 0,
+         conteudo: "",
+         motivo: `Máximo de 500 linhas de dados por importação; encontradas ${dataLineCount}`,
+      });
+   }
+
    return { rows, errors };
+}
+
+/**
+ * Fonte única do tom de um esforço aéreo: cor do texto e cor do marcador
+ * (dot, igual ao do histórico). COMAE (azul) prevalece sobre COMPREP
+ * (laranja): "COMAE PEO SPMAS COMPREP" é azul. Demais, neutro.
+ */
+export function getDescricaoTone(descricao: string): {
+   text: string;
+   dot: string;
+} {
+   if (descricao.includes("COMAE")) {
+      return { text: "text-blue-700", dot: "bg-blue-600" };
+   }
+   if (descricao.includes("COMPREP")) {
+      return { text: "text-orange-700", dot: "bg-orange-600" };
+   }
+   return { text: "text-gray-900", dot: "bg-slate-400" };
 }
 
 /**
@@ -165,10 +259,12 @@ export function parseEsfAerData(raw: string): EsfAerParseResult {
  * based on the description text content.
  */
 export function getDescricaoStyles(descricao: string): string {
-   return clsx("text-left whitespace-nowrap text-gray-900", {
-      "text-orange-400": descricao.includes("COMPREP"),
-      "text-blue-500": descricao.includes("COMAE"),
-      "font-bold": descricao.includes("SESQAE"),
-      "animate-bounce": descricao.includes("COMPREP PRPO SML"),
-   });
+   return clsx(
+      "text-left whitespace-nowrap",
+      getDescricaoTone(descricao).text,
+      {
+         "font-bold": descricao.includes("SESQAE"),
+         "animate-bounce": descricao.includes("COMPREP PRPO SML"),
+      }
+   );
 }

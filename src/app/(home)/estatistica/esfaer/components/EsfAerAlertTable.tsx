@@ -7,10 +7,15 @@ import {
    TableCell,
 } from "flowbite-react";
 import clsx from "clsx";
+import { HiOutlineExclamation } from "react-icons/hi";
 import { minutesToTime } from "@/../utils/dateHandler";
 import type { EsfAerResumoItem } from "services/routes/estatistica/esfAer";
 import { MONTH_LABELS } from "../constants";
-import { formatSignedMinutes, getDescricaoStyles } from "../utils";
+import {
+   formatSignedMinutes,
+   getDescricaoStyles,
+   type FocoDivergencia,
+} from "../utils";
 
 interface DiffMonth {
    index: number;
@@ -48,9 +53,15 @@ function getDiffItems(items: EsfAerResumoItem[]): DiffItem[] {
 
 interface EsfAerAlertTableProps {
    items: EsfAerResumoItem[];
+   foco: FocoDivergencia | null;
+   onLocalizar: (esfaerId: number, mes: number) => void;
 }
 
-export function EsfAerAlertTable({ items }: EsfAerAlertTableProps) {
+export function EsfAerAlertTable({
+   items,
+   foco,
+   onLocalizar,
+}: EsfAerAlertTableProps) {
    const diffItems = getDiffItems(items);
 
    if (diffItems.length === 0) return null;
@@ -58,19 +69,10 @@ export function EsfAerAlertTable({ items }: EsfAerAlertTableProps) {
    return (
       <div className="hidden w-1/2 overflow-x-auto rounded border border-amber-300 bg-amber-50 shadow-sm md:block">
          <div className="flex items-center justify-center gap-2 border-b border-amber-300 px-4 py-2">
-            <svg
+            <HiOutlineExclamation
+               aria-hidden
                className="h-5 w-5 text-amber-500"
-               fill="none"
-               stroke="currentColor"
-               viewBox="0 0 24 24"
-            >
-               <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-               />
-            </svg>
+            />
             <span className="text-sm font-semibold text-amber-700">
                Divergência
             </span>
@@ -94,37 +96,81 @@ export function EsfAerAlertTable({ items }: EsfAerAlertTableProps) {
             </TableHead>
             <TableBody className="divide-y">
                {diffItems.map(({ item, months }) =>
-                  months.map((m, mIdx) => (
-                     <TableRow key={`${item.id}-${m.index}`}>
-                        {mIdx === 0 ? (
+                  months.map((m, mIdx) => {
+                     const selecionada =
+                        foco?.esfaerId === item.id && foco.mes === m.index;
+                     const alvo = `${item.descricao} em ${MONTH_LABELS[m.index]}`;
+                     // O realce vai nas células, não na <tr>: o fundo da linha
+                     // é pintado também atrás da célula rowSpan, que então
+                     // ficaria toda destacada.
+                     const realce = selecionada
+                        ? "bg-amber-200"
+                        : "group-hover/row:bg-amber-100";
+                     return (
+                        <TableRow
+                           key={`${item.id}-${m.index}`}
+                           data-divergencia-linha={`${item.id}-${m.index}`}
+                           aria-current={selecionada ? "true" : undefined}
+                           onClick={() => onLocalizar(item.id, m.index)}
+                           className="cursor-pointer"
+                        >
+                           {/* A célula de descrição (rowSpan) existe só na 1ª linha
+                              do esforço; clicar nela borbulha para essa linha e
+                              localiza o 1º mês divergente. O fundo transparente
+                              mantém o destaque só nas células da linha
+                              selecionada. */}
+                           {mIdx === 0 ? (
+                              <TableCell
+                                 rowSpan={months.length}
+                                 className={clsx(
+                                    "bg-transparent",
+                                    getDescricaoStyles(item.descricao)
+                                 )}
+                              >
+                                 {item.descricao}
+                              </TableCell>
+                           ) : null}
                            <TableCell
-                              rowSpan={months.length}
                               className={clsx(
-                                 getDescricaoStyles(item.descricao)
+                                 "font-medium text-gray-700",
+                                 realce
                               )}
                            >
-                              {item.descricao}
+                              {/* Alvo de teclado da linha; o mouse usa o onClick
+                                  da <tr>, por isso o stopPropagation. */}
+                              <button
+                                 type="button"
+                                 aria-label={`Localizar ${alvo} na tabela`}
+                                 onClick={(e) => {
+                                    e.stopPropagation();
+                                    onLocalizar(item.id, m.index);
+                                 }}
+                                 className="min-h-[24px] cursor-pointer bg-transparent p-0 font-[inherit] text-inherit focus-visible:outline-2 focus-visible:outline-amber-600"
+                              >
+                                 {MONTH_LABELS[m.index]}
+                              </button>
                            </TableCell>
-                        ) : null}
-                        <TableCell className="font-medium text-gray-700">
-                           {MONTH_LABELS[m.index]}
-                        </TableCell>
-                        <TableCell className="font-mono">
-                           {minutesToTime(m.sagem)}
-                        </TableCell>
-                        <TableCell className="font-mono">
-                           {minutesToTime(m.voado)}
-                        </TableCell>
-                        <TableCell
-                           className={clsx("font-mono font-semibold", {
-                              "text-green-700": m.diff > 0,
-                              "text-red-600": m.diff < 0,
-                           })}
-                        >
-                           {formatSignedMinutes(m.diff)}
-                        </TableCell>
-                     </TableRow>
-                  ))
+                           <TableCell className={clsx("font-mono", realce)}>
+                              {minutesToTime(m.sagem)}
+                           </TableCell>
+                           <TableCell className={clsx("font-mono", realce)}>
+                              {minutesToTime(m.voado)}
+                           </TableCell>
+                           <TableCell
+                              className={clsx(
+                                 "font-mono font-semibold",
+                                 realce,
+                                 {
+                                    "text-green-700": m.diff > 0,
+                                    "text-red-600": m.diff < 0,
+                                 }
+                              )}
+                           >
+                              {formatSignedMinutes(m.diff)}
+                           </TableCell>
+                        </TableRow>
+                     );
+                  })
                )}
             </TableBody>
          </Table>

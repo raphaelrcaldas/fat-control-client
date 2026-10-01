@@ -20,10 +20,18 @@
  *   ciclo do ResizeObserver (loop infinito no mobile). O brush segue fixo.
  * - Brush SEMPRE plota o Total do backend, independente da visibilidade — é
  *   contexto de navegação, não uma série toggleável.
- * - Único ponto imperativo: `resetZoom()` exposto via ref (a toolbar chama).
+ * - Pontos imperativos: `resetZoom()` exposto via ref (a toolbar chama) e
+ *   `events.mounted/updated`, que consultam `getState()` para alimentar o ref
+ *   do recorte temporal.
  */
 
-import { useImperativeHandle, useMemo, type ReactNode, type Ref } from "react";
+import {
+   useImperativeHandle,
+   useMemo,
+   useRef,
+   type ReactNode,
+   type Ref,
+} from "react";
 import Chart from "react-apexcharts";
 import ApexChartsLib from "apexcharts";
 import { Button } from "flowbite-react";
@@ -36,10 +44,8 @@ import {
    toApexData,
    type ApexSeries,
 } from "../utils";
-import {
-   useHistoricoSeries,
-   type HistoricoVisibility,
-} from "../hooks/useHistoricoSeries";
+import { useHistoricoSeries } from "../hooks/useHistoricoSeries";
+import type { HistoricoVisibility } from "../hooks/useHistoricoVisibility";
 import { useChartReadouts } from "../hooks/useChartReadouts";
 import type { CarryForward } from "../hooks/useCarryForward";
 import type { EsfAerHistorico } from "services/routes/estatistica/esfAer";
@@ -127,6 +133,16 @@ export function HistoricoChart({
       [yearStart, domainMax]
    );
 
+   // Guarda o recorte aplicado pelo Apex, incluindo brush, zoom e pan. O evento
+   // `updated` observa todos sem substituir os handlers nativos do brush.
+   // Um novo ano/domínio volta ao default, pois o brush também o faz.
+   const rangeRef = useRef<{
+      anoRef: number;
+      domainMax: number;
+      min: number;
+      max: number;
+   } | null>(null);
+
    // Escala do eixo Y derivada das séries visíveis, em passos redondos.
    const yEscala = useMemo(() => {
       let max = 0;
@@ -153,6 +169,12 @@ export function HistoricoChart({
       ref,
       () => ({
          resetZoom: () => {
+            rangeRef.current = {
+               anoRef,
+               domainMax,
+               min: yearStart,
+               max: domainMax,
+            };
             ApexChartsLib.exec(MAIN_ID, "zoomX", yearStart, domainMax);
             // O zoomX no principal não move a janela do brush — sincroniza.
             ApexChartsLib.exec(BRUSH_ID, "updateOptions", {
@@ -162,11 +184,23 @@ export function HistoricoChart({
             });
          },
       }),
-      [yearStart, domainMax]
+      [anoRef, yearStart, domainMax]
    );
 
-   const options = useMemo<ApexCharts.ApexOptions>(
-      () => ({
+   const options = useMemo<ApexCharts.ApexOptions>(() => {
+      const range = rangeRef.current;
+      const currentRange =
+         range?.anoRef === anoRef && range.domainMax === domainMax
+            ? range
+            : brushDefault;
+      const rememberRange = (chart: ApexChartsLib) => {
+         const { minX, maxX } = chart.getState();
+         if (Number.isFinite(minX) && Number.isFinite(maxX) && minX < maxX) {
+            rangeRef.current = { anoRef, domainMax, min: minX, max: maxX };
+         }
+      };
+
+      return {
          chart: {
             id: MAIN_ID,
             type: "line",
@@ -177,6 +211,7 @@ export function HistoricoChart({
             animations: { enabled: false },
             toolbar: { show: false },
             zoom: { enabled: true, type: "x", autoScaleYaxis: true },
+            events: { mounted: rememberRange, updated: rememberRange },
          },
          colors,
          stroke: { curve: "straight", width: widths, dashArray },
@@ -189,8 +224,8 @@ export function HistoricoChart({
          grid: { borderColor: "#e2e8f0", strokeDashArray: 4 },
          xaxis: {
             type: "datetime",
-            min: yearStart,
-            max: domainMax,
+            min: currentRange.min,
+            max: currentRange.max,
             axisBorder: { show: false },
             axisTicks: { color: "#e2e8f0" },
             labels: {
@@ -225,19 +260,20 @@ export function HistoricoChart({
                return buildTooltipHTML(name, m);
             },
          },
-      }),
-      [
-         series,
-         colors,
-         dashArray,
-         widths,
-         markerSizes,
-         meta,
-         yearStart,
-         domainMax,
-         yEscala,
-      ]
-   );
+      };
+   }, [
+      anoRef,
+      brushDefault,
+      series,
+      colors,
+      dashArray,
+      widths,
+      markerSizes,
+      meta,
+      yearStart,
+      domainMax,
+      yEscala,
+   ]);
 
    // Brush plota o Total do backend, independente do toggle de visibilidade.
    const brushSeries = useMemo<ApexSeries[]>(

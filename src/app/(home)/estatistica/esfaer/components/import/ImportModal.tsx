@@ -30,6 +30,7 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
    } = useEsfAerImport(anoRef);
 
    const handleClose = () => {
+      if (showConfirm || isPending) return;
       setShow(false);
       reset();
    };
@@ -43,10 +44,15 @@ export function ImportModal({ show, setShow, anoRef }: ImportModalProps) {
 
    return (
       <>
-         <Modal show={show} size="7xl" onClose={handleClose} dismissible>
+         <Modal
+            show={show}
+            size="7xl"
+            onClose={handleClose}
+            dismissible={!showConfirm && !isPending}
+         >
             <ModalHeader>
                Importar Esforço Aéreo —{" "}
-               <span className="rounded bg-red-100 px-2 py-0.5 font-bold text-red-800">
+               <span className="bg-primary-100 text-primary-800 rounded px-2 py-0.5 font-bold">
                   {anoRef}
                </span>
             </ModalHeader>

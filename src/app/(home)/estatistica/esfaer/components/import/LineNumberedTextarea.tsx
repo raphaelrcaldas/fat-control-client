@@ -34,7 +34,7 @@ export function LineNumberedTextarea({
       <div className="flex overflow-hidden rounded border border-slate-200">
          <div
             ref={gutterRef}
-            className="overflow-hidden bg-gray-100 py-2 text-right font-mono text-xs leading-relaxed text-gray-400 select-none"
+            className="overflow-hidden bg-gray-100 pt-2 pb-[calc(0.5rem+20px)] text-right font-mono text-xs leading-relaxed text-gray-400 select-none"
          >
             {Array.from({ length: lineCount }, (_, i) => (
                <div key={i} className="px-2">
@@ -45,11 +45,13 @@ export function LineNumberedTextarea({
          <textarea
             ref={textareaRef}
             placeholder={placeholder}
+            aria-label="Dados de esforço aéreo separados por TAB"
+            wrap="off"
             rows={rows}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onScroll={syncScroll}
-            className="flex-1 resize-none border-0 py-2 font-mono text-xs leading-relaxed focus:ring-0"
+            className="min-w-0 flex-1 resize-none border-0 py-2 font-mono text-xs leading-relaxed whitespace-pre focus:ring-0"
          />
       </div>
    );

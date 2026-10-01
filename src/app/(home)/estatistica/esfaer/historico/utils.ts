@@ -154,7 +154,8 @@ function vigenteEm(programa: HistPrograma, alvo: string): number {
 /**
  * Soma carry-forward de todos os programas: une as datas de mudança (asc) e, em
  * cada data, soma o valor vigente de cada programa; o `delta` é a variação do
- * total entre pontos consecutivos (primeiro ponto: delta = alocado).
+ * total entre pontos consecutivos (primeiro ponto: delta = 0, base como no
+ * Total do backend).
  */
 export function carryForwardSum(programas: HistPrograma[]): HistPoint[] {
    const datas = Array.from(
@@ -164,7 +165,7 @@ export function carryForwardSum(programas: HistPrograma[]): HistPoint[] {
    let anterior = 0;
    return datas.map((data, i) => {
       const alocado = programas.reduce((acc, p) => acc + vigenteEm(p, data), 0);
-      const delta = i === 0 ? alocado : alocado - anterior;
+      const delta = i === 0 ? 0 : alocado - anterior;
       anterior = alocado;
       return { data, alocado, delta };
    });

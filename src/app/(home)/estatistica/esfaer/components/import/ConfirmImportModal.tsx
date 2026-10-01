@@ -18,7 +18,15 @@ export function ConfirmImportModal({
    onCancel,
 }: ConfirmImportModalProps) {
    return (
-      <Modal show={show} size="md" onClose={onCancel} popup>
+      <Modal
+         show={show}
+         size="md"
+         onClose={() => {
+            if (!isPending) onCancel();
+         }}
+         dismissible={!isPending}
+         popup
+      >
          <ModalHeader />
          <ModalBody>
             <div className="text-center">

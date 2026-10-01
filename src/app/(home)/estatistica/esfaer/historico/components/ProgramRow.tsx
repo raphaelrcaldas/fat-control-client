@@ -92,7 +92,7 @@ export function ProgramRow({
             aria-pressed={isolated}
             aria-label={`Isolar ${nome} no gráfico`}
             className={clsx(
-               "min-w-0 flex-1 truncate text-left text-sm font-semibold",
+               "min-h-[24px] min-w-0 flex-1 truncate text-left text-sm font-semibold",
                zerado ? "text-slate-500" : "text-slate-900"
             )}
          >

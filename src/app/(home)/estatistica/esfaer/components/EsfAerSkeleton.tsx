@@ -128,7 +128,7 @@ const GROUP_CARDS = [
 
 function GroupCardsSkeleton() {
    return (
-      <div className="grid w-full grid-cols-3 gap-4 md:w-2/3">
+      <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 md:w-2/3">
          {GROUP_CARDS.map((border, i) => (
             <div
                key={i}
@@ -200,14 +200,16 @@ function ChartAreaSkeleton() {
 
 export function EsfAerSkeleton() {
    return (
-      <div
-         role="status"
-         className="grid animate-pulse justify-items-center gap-4"
-      >
+      <div role="status">
          <span className="sr-only">Carregando esforço aéreo…</span>
-         <MainTableSkeleton />
-         <GroupCardsSkeleton />
-         <ChartAreaSkeleton />
+         <div
+            aria-hidden
+            className="grid animate-pulse justify-items-center gap-2"
+         >
+            <MainTableSkeleton />
+            <GroupCardsSkeleton />
+            <ChartAreaSkeleton />
+         </div>
       </div>
    );
 }

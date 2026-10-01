@@ -172,6 +172,10 @@ export function ExtratoModal({
                   )}
                >
                   <Table>
+                     <caption className="sr-only">
+                        Extrato de alocações de {anoRef}, por data e programa,
+                        com valores anterior, novo e variação.
+                     </caption>
                      <TableHead className="sticky top-0 z-10 shadow-[inset_0_-1px_0_var(--color-slate-200)]">
                         <TableRow>
                            <TableHeadCell>Programa</TableHeadCell>
@@ -198,12 +202,13 @@ export function ExtratoModal({
                            )}
                         >
                            <TableRow className="bg-slate-50">
-                              <TableCell
+                              <th
+                                 scope="rowgroup"
                                  colSpan={4}
-                                 className="py-1.5 text-xs font-semibold text-slate-700"
+                                 className="px-6 py-1.5 text-left text-xs font-semibold text-slate-700"
                               >
                                  {formatDiaSemana(dia.data)}
-                              </TableCell>
+                              </th>
                            </TableRow>
                            {dia.linhas.map((l) => (
                               <TableRow key={l.key}>

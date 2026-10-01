@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { getGroupColor, TOTAL_COLOR } from "../constants";
 import type { CarryForward } from "./useCarryForward";
-import type { HistoricoVisibility } from "./useHistoricoSeries";
+import type { HistoricoVisibility } from "./useHistoricoVisibility";
 import type { EsfAerHistorico } from "services/routes/estatistica/esfAer";
 
 /** Teto de leituras de esforço — o excedente vira contagem. */
