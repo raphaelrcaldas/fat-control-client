@@ -441,7 +441,7 @@ function buildEvent(log: UserActionLog): OrdemHistoricoEvent {
 
 /**
  * Converte os logs de auditoria da OM em eventos prontos para render, em
- * ordem cronológica (mais antigo primeiro), com `id` como desempate.
+ * ordem cronológica decrescente (mais recente primeiro), com `id` como desempate.
  */
 export function buildOrdemHistoricoEvents(
    logs: UserActionLog[]
@@ -449,8 +449,8 @@ export function buildOrdemHistoricoEvents(
    return [...logs]
       .sort((a, b) => {
          const diff =
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-         return diff !== 0 ? diff : a.id - b.id;
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+         return diff !== 0 ? diff : b.id - a.id;
       })
       .map(buildEvent);
 }

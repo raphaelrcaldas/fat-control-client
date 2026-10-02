@@ -143,7 +143,9 @@ export const EtapasTable = memo(function EtapasTable({
                         <TableHeadCell>Alt</TableHeadCell>
                         <TableHeadCell>T. Alt</TableHeadCell>
                         <TableHeadCell className="">Comb (T)</TableHeadCell>
-                        <TableHeadCell>Esforço Aéreo</TableHeadCell>
+                        <TableHeadCell className="text-center">
+                           Esforço Aéreo
+                        </TableHeadCell>
                         {isEditable && (
                            <TableHeadCell className="w-20">
                               <span className="sr-only">Ações</span>
@@ -215,9 +217,9 @@ export const EtapasTable = memo(function EtapasTable({
                                  </TableCell>
                                  {/* Texto livre e longo: trunca com o valor
                                      completo no title, em vez de quebrar */}
-                                 <TableCell className="font-medium uppercase">
+                                 <TableCell className="text-center font-medium uppercase">
                                     <span
-                                       className="block max-w-[180px] truncate"
+                                       className="mx-auto block max-w-[180px] truncate"
                                        title={etapa.esf_aer || undefined}
                                     >
                                        {etapa.esf_aer || "—"}

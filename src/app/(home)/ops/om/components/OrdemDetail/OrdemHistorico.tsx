@@ -14,7 +14,7 @@ interface OrdemHistoricoProps {
 }
 
 /**
- * Seção "Histórico" da OM: eventos de auditoria em ordem cronológica, com
+ * Seção "Histórico" da OM: eventos de auditoria do mais recente ao mais antigo, com
  * diff item a item das listas (tripulação, etapas, ordens especiais e
  * etiquetas). Sempre expandida, ao final do formulário.
  */
