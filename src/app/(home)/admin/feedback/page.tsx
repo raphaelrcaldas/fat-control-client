@@ -58,7 +58,7 @@ export default function FeedbackPage() {
    const naoLidos = useAvisosNaoLidosDeFeedback(TIPOS_AVISO_ADMIN);
    const { searchParams, setParams } = useSearchParamsUpdater();
 
-   const [filtro, setFiltro] = useState<Filtro>(null);
+   const [filtro, setFiltro] = useState<Filtro>("aguardando");
    const [paraExcluir, setParaExcluir] = useState<Feedback | null>(null);
 
    // A conversa aberta é a da URL, resolvida na lista (o modal precisa do
@@ -157,21 +157,10 @@ export default function FeedbackPage() {
             </div>
          </header>
 
-         {/* Filtro — os contadores SÃO o filtro. "Aguardando resposta"
+         {/* Filtro — os contadores SÃO o filtro. "Aguardando"
              vem primeiro: é a fila de trabalho; os status vêm depois. */}
          {!isLoading && feedbacks.length > 0 && (
             <div className="flex flex-wrap gap-2 rounded border border-slate-200 bg-white p-2 shadow-sm">
-               <button
-                  type="button"
-                  onClick={() => setFiltro(null)}
-                  aria-pressed={filtro === null}
-                  className={chip(
-                     filtro === null,
-                     "border-slate-400 bg-slate-100 text-slate-800"
-                  )}
-               >
-                  Todos ({feedbacks.length})
-               </button>
                {(totalAguardando > 0 || filtro === "aguardando") && (
                   <button
                      type="button"
@@ -188,7 +177,7 @@ export default function FeedbackPage() {
                      )}
                   >
                      <MdReply className="size-3.5" aria-hidden />
-                     Aguardando resposta ({totalAguardando})
+                     Aguardando ({totalAguardando})
                   </button>
                )}
                {STATUS_ORDEM.filter((s) => contagem[s]).map((s) => (
@@ -202,6 +191,17 @@ export default function FeedbackPage() {
                      {STATUS_META[s].label} ({contagem[s]})
                   </button>
                ))}
+               <button
+                  type="button"
+                  onClick={() => setFiltro(null)}
+                  aria-pressed={filtro === null}
+                  className={chip(
+                     filtro === null,
+                     "border-slate-400 bg-slate-100 text-slate-800"
+                  )}
+               >
+                  Todos ({feedbacks.length})
+               </button>
             </div>
          )}
 
