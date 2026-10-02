@@ -22,7 +22,10 @@ import {
    calcularTempoVooMinutos,
    addMinutesToIsoDatetime,
 } from "utils/dateHandler";
-import { createNextEtapa } from "./utils/ordemUtils";
+import {
+   createNextEtapa,
+   normalizeEtapaEsforcoAereo,
+} from "./utils/ordemUtils";
 import {
    getErroDataHora,
    getErroTempoVooMinimo,
@@ -80,7 +83,10 @@ export function EtapaModal({
 
       if (isEditing && etapa) {
          // Modo edição: carregar dados da etapa
-         setFormData({ ...etapa });
+         setFormData({
+            ...etapa,
+            esf_aer: normalizeEtapaEsforcoAereo(etapa.esf_aer),
+         });
       } else if (referenceEtapa) {
          // Modo adicionar: pré-preencher com dados da etapa anterior
          setFormData(createNextEtapa(referenceEtapa));
@@ -208,7 +214,10 @@ export function EtapaModal({
 
    const handleSave = () => {
       if (cannotSave) return;
-      onSave(formData as EtapaOut);
+      onSave({
+         ...formData,
+         esf_aer: normalizeEtapaEsforcoAereo(formData.esf_aer),
+      } as EtapaOut);
       onClose();
    };
 
@@ -572,7 +581,15 @@ export function EtapaModal({
                                     esf_aer: e.target.value.toUpperCase(),
                                  }))
                               }
-                              onBlur={() => markTouched("esf_aer")}
+                              onBlur={() => {
+                                 setFormData((prev) => ({
+                                    ...prev,
+                                    esf_aer: normalizeEtapaEsforcoAereo(
+                                       prev.esf_aer
+                                    ),
+                                 }));
+                                 markTouched("esf_aer");
+                              }}
                               placeholder="ESFORÇO ALOCADO"
                               className={clsx(
                                  inputBaseClass,

@@ -4,6 +4,14 @@ import {
    addMinutesToIsoDatetime,
 } from "utils/dateHandler";
 
+// Mesmo conjunto de whitespace de EtapaBase na API, incluindo NEL e BOM.
+const ESFORCO_AEREO_WHITESPACE =
+   /[\u0009-\u000d\u001c-\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+/g;
+
+// Limpa as extremidades e reduz sequências internas a um espaço.
+export const normalizeEtapaEsforcoAereo = (value?: string | null): string =>
+   (value ?? "").replace(ESFORCO_AEREO_WHITESPACE, " ").trim();
+
 // Calcula o esforço aéreo total (soma dos tempos de voo das etapas)
 export const calcularEsfAer = (etapas: EtapaOut[]): number => {
    return etapas.reduce((acc, etapa) => {
@@ -34,7 +42,7 @@ export const createNextEtapa = (
       alternativa: "",
       tvoo_alt: 0,
       qtd_comb: 0,
-      esf_aer: esf_aer || "",
+      esf_aer: normalizeEtapaEsforcoAereo(esf_aer),
    };
 };
 

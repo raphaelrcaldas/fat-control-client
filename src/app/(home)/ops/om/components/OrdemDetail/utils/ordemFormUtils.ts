@@ -12,7 +12,11 @@ import type {
 } from "services/routes/om/ordens";
 import { type CrewMember } from "services/routes/trips";
 import type { FuncType } from "@/constants/tripulantes";
-import { createDefaultOrdem, calcularEsfAer } from "./ordemUtils";
+import {
+   createDefaultOrdem,
+   calcularEsfAer,
+   normalizeEtapaEsforcoAereo,
+} from "./ordemUtils";
 
 // Tripulação agrupada por função. As chaves são as funções que a unidade
 // opera (`useFuncoes()`), passadas por quem chama — este módulo é puro e
@@ -147,7 +151,7 @@ export const toOrdemPayload = (
             typeof etapa.qtd_comb === "number"
                ? etapa.qtd_comb
                : parseInt(String(etapa.qtd_comb || "0"), 10),
-         esf_aer: etapa.esf_aer,
+         esf_aer: normalizeEtapaEsforcoAereo(etapa.esf_aer),
       })),
       tripulacao: tripulacaoAgrupada,
       campos_especiais: camposEspeciais,

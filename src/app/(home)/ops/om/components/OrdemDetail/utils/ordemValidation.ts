@@ -4,7 +4,7 @@
 
 import type { EtapaOut } from "services/routes/om/ordens";
 import { calcularTempoVooMinutos } from "utils/dateHandler";
-import { calcularEsfAer } from "./ordemUtils";
+import { calcularEsfAer, normalizeEtapaEsforcoAereo } from "./ordemUtils";
 
 export const TVOO_MINIMO_MINUTOS = 5;
 
@@ -88,7 +88,7 @@ const ETAPA_REQUIRED_FIELDS: EtapaFieldDef[] = [
       field: "esf_aer",
       label: "Esforço aéreo",
       message: "Esforço aéreo é obrigatório",
-      isMissing: (e) => !e.esf_aer?.trim(),
+      isMissing: (e) => !normalizeEtapaEsforcoAereo(e.esf_aer),
    },
 ];
 
