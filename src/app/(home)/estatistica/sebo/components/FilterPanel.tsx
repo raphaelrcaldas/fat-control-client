@@ -2,7 +2,7 @@
 import { Label, Select } from "flowbite-react";
 import clsx from "clsx";
 import { getOperSigla } from "@/constants/tripulantes/operacionalidade";
-import { FUNC_OPTIONS, INFO_COLUMNS_CONFIG, YEAR_OPTIONS } from "../constants";
+import { FUNC_OPTIONS, INFO_COLUMNS_CONFIG, yearOptions } from "../constants";
 import type { InfoColumn } from "../types";
 import { ToggleChip } from "./ToggleChip";
 
@@ -133,7 +133,7 @@ export default function FilterPanel({
                      theme={selectTheme}
                      clearTheme={{ field: { select: { sizes: { md: true } } } }}
                   >
-                     {YEAR_OPTIONS.map((year) => (
+                     {yearOptions().map((year) => (
                         <option key={year} value={year}>
                            {year}
                         </option>

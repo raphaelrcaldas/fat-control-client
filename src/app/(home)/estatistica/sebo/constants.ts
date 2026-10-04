@@ -33,8 +33,7 @@ export const FUNC_OPTIONS: { value: string; label: string }[] = [
    { value: "oe", label: "OE" },
 ];
 
-const currentYear = new Date().getFullYear();
-export const YEAR_OPTIONS = Array.from(
-   { length: currentYear - 2020 + 1 },
-   (_, i) => currentYear - i
-);
+/** Anos do filtro, do corrente até 2026; chamar no render, não no módulo. */
+export function yearOptions(current = new Date().getFullYear()): number[] {
+   return Array.from({ length: current - 2026 + 1 }, (_, i) => current - i);
+}
