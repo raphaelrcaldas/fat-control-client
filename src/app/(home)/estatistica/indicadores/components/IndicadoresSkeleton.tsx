@@ -1,5 +1,6 @@
 "use client";
 
+import { CHART_HEIGHT } from "./chartConstants";
 import { IndicadoresKpis } from "./IndicadoresKpis";
 
 /** Espelha o SecaoCard sem eyebrow e as alturas das linhas reais. */
@@ -54,6 +55,39 @@ function SecaoSkeleton({
    );
 }
 
+/** Espelha o SecaoCard com gráfico: cabeçalho + gráfico com `p-2`. */
+function ChartSkeleton({ variante }: { variante: "donut" | "barras" }) {
+   return (
+      <div className="flex flex-col rounded border border-slate-200 bg-white shadow-sm">
+         <div className="flex h-[39.5px] items-center border-b border-slate-200 px-4">
+            <div className="h-3.5 w-40 animate-pulse rounded bg-slate-200" />
+         </div>
+         <div className="p-2" style={{ height: CHART_HEIGHT + 16 }}>
+            {variante === "donut" ? (
+               <div className="flex h-full items-center justify-center">
+                  <div className="size-[220px] animate-pulse rounded-full border-[44px] border-slate-100" />
+               </div>
+            ) : (
+               <div className="flex h-full flex-col justify-center gap-3 px-2">
+                  {BARRAS.map((w, i) => (
+                     <div key={i} className="flex items-center gap-3">
+                        <div className="h-3 w-32 shrink-0 animate-pulse rounded bg-slate-200" />
+                        <div
+                           className="h-4 animate-pulse rounded bg-slate-100"
+                           style={{ width: `${w}%` }}
+                        />
+                     </div>
+                  ))}
+               </div>
+            )}
+         </div>
+      </div>
+   );
+}
+
+/** Larguras fixas (%) das barras: nunca `Math.random()`, evita flicker. */
+const BARRAS = [80, 62, 48, 36, 28, 20, 14, 10, 6];
+
 /**
  * Espelha o layout real do painel para não haver layout-shift quando os
  * dados chegam: 4 KPIs grandes, 5 operacionais, matriz de 12 indicadores + cabeçalho,
@@ -90,8 +124,8 @@ export function IndicadoresSkeleton() {
          </div>
 
          <div aria-hidden className="grid gap-2 lg:grid-cols-2">
-            <SecaoSkeleton rows={3} cols={2} />
-            <SecaoSkeleton rows={9} cols={3} />
+            <ChartSkeleton variante="donut" />
+            <ChartSkeleton variante="barras" />
          </div>
 
          <div aria-hidden>
