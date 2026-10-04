@@ -35,6 +35,7 @@ export interface SearchTripsParams {
 export interface GetTripsParams {
    [key: string]: string | number | boolean | string[] | undefined;
    active?: boolean;
+   include_inactive?: boolean;
    page?: number;
    per_page?: number;
    search?: string;
@@ -51,6 +52,10 @@ export interface PaginatedTripsResponse {
    pages: number;
 }
 
+// Campos consumidos na seleção do relatório; a listagem reutiliza CrewMember.
+export type TripSearchItem = Pick<CrewMember, "trig" | "active" | "user"> & {
+   id: number;
+};
 export interface CreateTripData extends TripFuncFields {
    user_id: number;
    active: boolean;
@@ -69,6 +74,7 @@ export async function getTrips(
    // Converter parâmetros para Record<string, string | number>
    const queryParams: Record<string, string | number> = {};
    if (params.active !== undefined) queryParams.active = String(params.active);
+   if (params.include_inactive) queryParams.include_inactive = "true";
    if (params.page) queryParams.page = params.page;
    if (params.per_page) queryParams.per_page = params.per_page;
    if (params.search) queryParams.search = params.search;

@@ -170,15 +170,37 @@ export default function TripDetailsPage() {
                            )}
                         </Button>
                      </PermBased>
+                     <PermBased resource="ops.tripulantes" requiredPerm="view">
+                        <Button
+                           as={Link}
+                           href={`/estatistica/tripulante?trip_id=${tripId}`}
+                           color="light"
+                           size="sm"
+                           className="whitespace-nowrap"
+                        >
+                           <HiClipboardList
+                              aria-hidden
+                              className="mr-1.5 h-4 w-4"
+                           />
+                           <span className="sm:hidden">Relatório</span>
+                           <span className="hidden sm:inline">
+                              Relatório anual
+                           </span>
+                        </Button>
+                     </PermBased>
                      <Button
                         as={Link}
                         href={`/users/${trip.user.id}`}
                         color="light"
                         size="sm"
                         title="Ver ficha do usuário"
+                        className="whitespace-nowrap"
                      >
                         <HiIdentification className="mr-1.5 h-4 w-4" />
-                        Ficha do usuário
+                        <span className="sm:hidden">Ficha</span>
+                        <span className="hidden sm:inline">
+                           Ficha do usuário
+                        </span>
                      </Button>
                   </div>
                </div>

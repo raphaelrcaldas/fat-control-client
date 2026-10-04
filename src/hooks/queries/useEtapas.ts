@@ -30,6 +30,8 @@ import {
 import { esfAerKeys } from "./useEsfAer";
 import { indicadoresKeys } from "./useIndicadores";
 import { seboKeys } from "./useSebo";
+import { relatorioAnualKeys } from "@/hooks/queries/useRelatorioAnual";
+import { relatorioMensalKeys } from "@/hooks/queries/useRelatorioMensal";
 import { indispKeys } from "./useIndisps";
 import { escalaKeys } from "./useEscala";
 
@@ -131,6 +133,8 @@ export function useCreateMissaoWithEtapas() {
          queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
@@ -178,6 +182,8 @@ export function useUpdateMissaoWithEtapas() {
          queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
@@ -214,6 +220,8 @@ export function useDeleteMissaoComEtapas() {
          });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
@@ -233,6 +241,8 @@ export function useCreateEtapa() {
          queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
@@ -249,6 +259,8 @@ export function useUpdateEtapa() {
          queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
@@ -264,6 +276,8 @@ export function useBulkUpdateEtapas() {
          queryClient.invalidateQueries({ queryKey: missaoEtpKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },
@@ -300,6 +314,8 @@ export function useDeleteEtapa() {
          });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          invalidateRestricoesOperacionais(queryClient);
       },

@@ -8,6 +8,8 @@ import { esfAerKeys } from "@/hooks/queries/useEsfAer";
 import { seboKeys } from "@/hooks/queries/useSebo";
 import { indispKeys } from "@/hooks/queries/useIndisps";
 import { escalaKeys } from "@/hooks/queries/useEscala";
+import { relatorioAnualKeys } from "@/hooks/queries/useRelatorioAnual";
+import { relatorioMensalKeys } from "@/hooks/queries/useRelatorioMensal";
 import { ApiError } from "services/Api";
 import {
    updateMissaoWithEtapas,
@@ -58,6 +60,8 @@ export function useUpdateMissaoDraft() {
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
          queryClient.invalidateQueries({ queryKey: indispKeys.all });
          queryClient.invalidateQueries({ queryKey: escalaKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          push({
             type: "success",
             title: "Sucesso",

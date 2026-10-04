@@ -3,6 +3,7 @@ import {
    useMutation,
    useQueryClient,
    keepPreviousData,
+   queryOptions,
 } from "@tanstack/react-query";
 import {
    getTrips,
@@ -34,6 +35,15 @@ export const tripKeys = {
    logs: (id: number) => [...tripKeys.detail(id), "logs"] as const,
 };
 
+// Uma base de key, filtros e cancelamento para listagens e autocompletes.
+// Cada fluxo preserva sua política de cache e de habilitação.
+export function tripListOptions(params?: GetTripsParams) {
+   return queryOptions({
+      queryKey: tripKeys.list(params),
+      queryFn: ({ signal }) => getTrips(params ?? {}, signal),
+   });
+}
+
 // ========================================
 // Queries
 // ========================================
@@ -43,8 +53,7 @@ export const tripKeys = {
  */
 export function useTrips(params?: GetTripsParams, enabled = true) {
    return useQuery({
-      queryKey: tripKeys.list(params),
-      queryFn: ({ signal }) => getTrips(params ?? {}, signal),
+      ...tripListOptions(params),
       placeholderData: keepPreviousData,
       staleTime: 0,
       enabled,
@@ -60,9 +69,7 @@ export function useTripSearch(funcao: string, search: string) {
    const term = search.trim();
 
    return useQuery({
-      queryKey: tripKeys.list({ func: [funcao], search: term }),
-      queryFn: ({ signal }) =>
-         getTrips({ func: [funcao], search: term }, signal),
+      ...tripListOptions({ func: [funcao], search: term }),
       enabled: term.length >= 2,
       staleTime: 60_000,
       placeholderData: keepPreviousData,

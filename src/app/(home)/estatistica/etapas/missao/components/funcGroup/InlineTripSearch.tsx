@@ -5,8 +5,7 @@ import { HiPlus, HiSearch } from "react-icons/hi";
 import { Spinner, TextInput } from "flowbite-react";
 import { useQuery } from "@tanstack/react-query";
 import type { FuncType } from "@/constants/tripulantes/funcoes";
-import { tripKeys } from "@/hooks/queries/useTrips";
-import { getTrips } from "services/routes/trips";
+import { tripListOptions } from "@/hooks/queries/useTrips";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 
 import { usePortalDropdown } from "../../hooks/usePortalDropdown";
@@ -56,8 +55,7 @@ export function InlineTripSearch({
       active: true,
    };
    const searchQuery = useQuery({
-      queryKey: tripKeys.list(searchParams),
-      queryFn: ({ signal }) => getTrips(searchParams, signal),
+      ...tripListOptions(searchParams),
       enabled: !isQueryShort,
    });
    const results = useMemo(

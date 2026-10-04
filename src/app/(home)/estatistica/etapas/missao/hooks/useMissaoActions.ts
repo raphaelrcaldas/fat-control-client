@@ -10,6 +10,8 @@ import { etapaKeys } from "@/hooks/queries/useEtapas";
 import { esfAerKeys } from "@/hooks/queries/useEsfAer";
 import { indicadoresKeys } from "@/hooks/queries/useIndicadores";
 import { seboKeys } from "@/hooks/queries/useSebo";
+import { relatorioAnualKeys } from "@/hooks/queries/useRelatorioAnual";
+import { relatorioMensalKeys } from "@/hooks/queries/useRelatorioMensal";
 import { indispKeys } from "@/hooks/queries/useIndisps";
 import { escalaKeys } from "@/hooks/queries/useEscala";
 import { deleteMissaoComEtapas } from "services/routes/estatistica/etapas";
@@ -63,6 +65,8 @@ export function useMissaoActions({ draft, mode }: UseMissaoActionsArgs) {
          queryClient.invalidateQueries({ queryKey: etapaKeys.all });
          queryClient.invalidateQueries({ queryKey: esfAerKeys.all });
          queryClient.invalidateQueries({ queryKey: seboKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioAnualKeys.all });
+         queryClient.invalidateQueries({ queryKey: relatorioMensalKeys.all });
          queryClient.invalidateQueries({ queryKey: indicadoresKeys.all });
          queryClient.invalidateQueries({ queryKey: indispKeys.all });
          queryClient.invalidateQueries({ queryKey: escalaKeys.all });
