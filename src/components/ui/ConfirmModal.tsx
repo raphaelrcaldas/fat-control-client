@@ -8,7 +8,7 @@ import {
    Spinner,
    type ButtonProps,
 } from "flowbite-react";
-import type { ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
 import type { IconType } from "react-icons";
 import { FaTriangleExclamation } from "react-icons/fa6";
 
@@ -44,6 +44,11 @@ export function ConfirmModal({
    confirmButtonText = "Confirmar",
    cancelButtonText = "Cancelar",
 }: ConfirmModalProps) {
+   // Foco inicial no Cancelar: Enter/Espaço logo após abrir não pode disparar
+   // a ação destrutiva do botão de confirmar.
+   const cancelRef = useRef<HTMLButtonElement>(null);
+   const descId = useId();
+
    const handleClose = () => {
       if (!isLoading) onClose();
    };
@@ -54,26 +59,66 @@ export function ConfirmModal({
    );
 
    return (
-      <Modal show={show} onClose={handleClose} size="md" popup>
+      <Modal
+         show={show}
+         onClose={handleClose}
+         size="md"
+         popup
+         dismissible={!isLoading}
+         initialFocus={isLoading ? 0 : cancelRef}
+         aria-describedby={description ? descId : undefined}
+         theme={{
+            root: { base: "p-4" },
+            content: { base: "relative h-auto w-full p-0" },
+         }}
+      >
          {/*
-          * O header (so o X, no modo `popup`) fica SEMPRE montado: escondido
-          * durante o loading, o modal encolhia a altura dele e o conteudo
-          * saltava. Em vez disso ele e neutralizado no lugar — `inert` o tira
-          * do foco por teclado e do leitor de tela, e o `handleClose` do Modal
-          * ja barra o fechamento enquanto carrega.
+          * O header guarda o icone e o titulo visiveis. O Modal do Flowbite crava
+          * `aria-labelledby` no id do titulo do header (o `h3`), entao esse e o
+          * unico heading e o que da o nome acessivel ao dialogo. O icone fica
+          * dentro do `h3` porque o `ModalHeader` so aceita `children` dentro do
+          * elemento titulo; como e `aria-hidden`, nao entra no nome.
+          *
+          * `theme` faz merge (twMerge) com o do Flowbite e com o global; o merge
+          * so acrescenta ou substitui classes em conflito, nunca remove. No
+          * header, `popup` vira a coluna centralizada e o X sai do fluxo
+          * (`absolute end-2 top-2`, ocupa de 7px a 35px do topo): `pt-10`
+          * (35px) comeca o icone exatamente onde o X termina; o que os separa
+          * e a posicao horizontal (X no canto `end-2`, icone centralizado), e o
+          * X nao desloca o conteudo. A folga de 14px em volta do cartao fica no
+          * `root` (o overlay), com `p-4`; no `content`, `p-0` anula o `p-4` e o
+          * `h-auto` troca o `h-full` do Flowbite. Assim o `div[role=dialog]`
+          * tem exatamente o tamanho do cartao: o `useDismiss` conta como
+          * "dentro" so o que esta sobre o cartao, e o toque na folga (e no
+          * overlay) fecha. O root centraliza o dialogo na vertical.
+          *
+          * `dismissible={!isLoading}`: Escape, clique fora e X fecham, exceto
+          * enquanto processa — sem a prop o `useDismiss` fica desligado. Nada no
+          * header muda com `isLoading`, entao a altura do modal nao salta.
+          * Com loading ja na abertura, o Cancelar esta desabilitado e nao pode
+          * receber foco: `initialFocus={0}` mantem o foco dentro do dialogo.
           */}
          <ModalHeader
-            inert={isLoading}
-            className={isLoading ? "opacity-50" : undefined}
-         />
+            theme={{
+               base: "relative",
+               popup: "p-6 pt-10 pb-0",
+               title: "mb-2 flex w-full flex-col items-center text-center text-lg font-semibold text-gray-900 dark:text-white",
+               close: { base: "absolute end-2 top-2" },
+            }}
+         >
+            <Icon
+               aria-hidden="true"
+               className={`mx-auto mb-4 h-14 w-14 ${iconColor}`}
+            />
+            {title}
+         </ModalHeader>
          <ModalBody>
             <div className="text-center">
-               <Icon className={`mx-auto mb-4 h-14 w-14 ${iconColor}`} />
-               <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
-                  {title}
-               </h3>
                {description && (
-                  <div className="mb-5 text-sm text-gray-500 dark:text-gray-400">
+                  <div
+                     id={descId}
+                     className="mb-5 text-sm text-gray-500 dark:text-gray-400"
+                  >
                      {description}
                   </div>
                )}
@@ -101,6 +146,7 @@ export function ConfirmModal({
                      )}
                   </Button>
                   <Button
+                     ref={cancelRef}
                      color="gray"
                      onClick={handleClose}
                      disabled={isLoading}
