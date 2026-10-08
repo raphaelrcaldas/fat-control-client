@@ -13,7 +13,7 @@ interface HorasAnvTableProps {
 
 /** Larguras fixas por subcoluna — mantêm todos os meses uniformes,
  *  com ou sem dados. */
-const HV_W = "min-w-18";
+const HV_W = "min-w-12";
 const PSO_W = "min-w-8";
 
 /** Célula numérica: mostra o valor ou um traço sutil quando zerado. */
@@ -49,12 +49,21 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
 
    return (
       <div>
-         <div className="max-h-[70vh] overflow-auto rounded border border-slate-200 bg-white shadow-sm">
+         <div
+            role="region"
+            aria-label="Horas de voo por aeronave e mês"
+            tabIndex={0}
+            className="focus-visible:ring-primary-600 max-h-[70vh] overflow-auto rounded border border-slate-200 bg-white shadow-sm focus-visible:ring-2 focus-visible:outline-none"
+         >
             <table className="w-full border-collapse text-center text-sm whitespace-nowrap">
+               <caption className="sr-only">
+                  Horas de voo e pousos por aeronave, por mês, em {anoRef}
+               </caption>
                <thead>
                   {/* Linha 1: nome do mês cobrindo as duas subcolunas (HV/PSO) */}
                   <tr>
                      <th
+                        scope="col"
                         rowSpan={2}
                         className="sticky top-0 left-0 z-30 h-7 border-r border-b border-slate-300 bg-slate-100 px-3 align-middle font-bold text-slate-700"
                      >
@@ -63,11 +72,12 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
                      {MONTH_LABELS.map((m, i) => (
                         <th
                            key={m}
+                           scope="col"
                            colSpan={2}
                            className={clsx(
                               "sticky top-0 z-20 h-7 border-l border-slate-200 px-0",
                               i === highlightMonth
-                                 ? "bg-red-50 text-red-700"
+                                 ? "bg-primary-50 text-primary-700"
                                  : "bg-slate-100 text-slate-600"
                            )}
                         >
@@ -77,6 +87,7 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
                         </th>
                      ))}
                      <th
+                        scope="col"
                         colSpan={2}
                         className="sticky top-0 z-20 h-7 border-l border-slate-300 bg-slate-200 px-0 font-bold text-slate-700"
                      >
@@ -93,45 +104,60 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
                         return (
                            <Fragment key={m}>
                               <th
+                                 scope="col"
                                  className={clsx(
                                     "sticky top-7 z-20 border-b border-l border-slate-100 px-0.5 pb-1 font-normal",
                                     HV_W,
                                     isHL
-                                       ? "bg-red-50 text-red-700"
+                                       ? "bg-primary-50 text-primary-700"
                                        : "bg-slate-100 text-slate-400"
                                  )}
                               >
-                                 HV
+                                 <abbr
+                                    title="Horas de voo"
+                                    className="no-underline"
+                                 >
+                                    HV
+                                 </abbr>
                               </th>
                               <th
+                                 scope="col"
                                  className={clsx(
                                     "sticky top-7 z-20 border-b border-slate-100 px-0.5 pb-1 font-normal",
                                     PSO_W,
                                     isHL
-                                       ? "bg-red-50 text-red-700"
+                                       ? "bg-primary-50 text-primary-700"
                                        : "bg-slate-100 text-slate-400"
                                  )}
                               >
-                                 PSO
+                                 <abbr title="Pousos" className="no-underline">
+                                    PSO
+                                 </abbr>
                               </th>
                            </Fragment>
                         );
                      })}
                      <th
+                        scope="col"
                         className={clsx(
                            "sticky top-7 z-20 border-b border-l border-slate-300 bg-slate-200 px-0.5 pb-1 font-normal text-slate-500",
                            HV_W
                         )}
                      >
-                        HV
+                        <abbr title="Horas de voo" className="no-underline">
+                           HV
+                        </abbr>
                      </th>
                      <th
+                        scope="col"
                         className={clsx(
                            "sticky top-7 z-20 border-b border-slate-300 bg-slate-200 px-0.5 pb-1 font-normal text-slate-500",
                            PSO_W
                         )}
                      >
-                        PSO
+                        <abbr title="Pousos" className="no-underline">
+                           PSO
+                        </abbr>
                      </th>
                   </tr>
                </thead>
@@ -139,32 +165,34 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
                <tbody className="divide-y divide-slate-100">
                   {data.items.map((item) => (
                      <tr key={item.matricula} className="group">
-                        <td className="sticky left-0 z-10 border-r border-slate-300 bg-white px-3 py-1.5 font-bold text-slate-800 group-hover:bg-slate-50">
+                        <th
+                           scope="row"
+                           className="sticky left-0 z-10 border-r border-slate-300 bg-white px-3 py-1.5 font-bold text-slate-800 group-hover:bg-slate-50"
+                        >
                            {item.matricula}
-                        </td>
+                        </th>
                         {item.meses.map((mes, i) => {
-                           const active = mes.tvoo > 0 || mes.pousos > 0;
                            const isHL = i === highlightMonth;
                            return (
                               <Fragment key={i}>
                                  <NumCell
                                     value={minutesToTime(mes.tvoo)}
-                                    active={active && mes.tvoo > 0}
+                                    active={mes.tvoo > 0}
                                     col="hv"
                                     className={clsx(
                                        "border-l border-slate-100",
                                        isHL
-                                          ? "bg-red-50/60"
+                                          ? "bg-primary-50/60"
                                           : "group-hover:bg-slate-50"
                                     )}
                                  />
                                  <NumCell
                                     value={mes.pousos}
-                                    active={active && mes.pousos > 0}
+                                    active={mes.pousos > 0}
                                     col="pso"
                                     className={clsx(
                                        isHL
-                                          ? "bg-red-50/60"
+                                          ? "bg-primary-50/60"
                                           : "group-hover:bg-slate-50"
                                     )}
                                  />
@@ -188,9 +216,12 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
 
                   {/* Linha TOTAL */}
                   <tr className="font-bold text-slate-800">
-                     <td className="sticky left-0 z-10 border-t border-r border-slate-300 bg-slate-200 px-3 py-1.5">
+                     <th
+                        scope="row"
+                        className="sticky left-0 z-10 border-t border-r border-slate-300 bg-slate-200 px-3 py-1.5"
+                     >
                         TOTAL
-                     </td>
+                     </th>
                      {data.total_meses.map((mes, i) => (
                         <Fragment key={i}>
                            <td
@@ -198,7 +229,7 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
                                  "border-t border-l border-slate-300 px-0.5 py-1.5 tabular-nums",
                                  HV_W,
                                  i === highlightMonth
-                                    ? "bg-red-100 text-red-800"
+                                    ? "bg-primary-100 text-primary-800"
                                     : "bg-slate-200"
                               )}
                            >
@@ -209,7 +240,7 @@ export function HorasAnvTable({ data, anoRef }: HorasAnvTableProps) {
                                  "border-t border-slate-300 px-0.5 py-1.5 tabular-nums",
                                  PSO_W,
                                  i === highlightMonth
-                                    ? "bg-red-100 text-red-800"
+                                    ? "bg-primary-100 text-primary-800"
                                     : "bg-slate-200"
                               )}
                            >

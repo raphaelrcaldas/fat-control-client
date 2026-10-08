@@ -14,40 +14,58 @@ export default function HorasAnvPage() {
    const currentYear = new Date().getFullYear();
    const [anoRef, setAnoRef] = useState(currentYear);
 
-   const { data, isLoading, isFetching, isError, error, refetch } =
-      useHorasAnv(anoRef);
+   const {
+      data,
+      isLoading,
+      isPending,
+      isFetching,
+      isPlaceholderData,
+      isError,
+      error,
+      refetch,
+   } = useHorasAnv(anoRef);
+
+   // Ano dos dados na tela: com keepPreviousData, durante a troca de ano os
+   // dados ainda são do ano anterior; só adota o novo ano quando eles chegam.
+   const [anoExibido, setAnoExibido] = useState(currentYear);
+   if (!isPlaceholderData && data && anoExibido !== anoRef) {
+      setAnoExibido(anoRef);
+   }
 
    const isRefetching = !isLoading && isFetching;
    const hasData = !!data && data.items.length > 0;
 
    return (
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-2">
          {/* Masthead — linguagem tática padrão do sistema */}
-         <header className="relative mb-5 overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+         <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
                aria-hidden
-               className="absolute top-0 left-0 h-full w-1 bg-red-600"
+               className="bg-primary-600 absolute top-0 left-0 h-full w-1"
             />
 
             <div className="relative flex flex-wrap items-center justify-between gap-4">
                <div className="flex min-w-0 items-center gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-red-50 text-red-600 ring-1 ring-red-100 ring-inset">
+                  <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                      <TbPlaneInflight className="h-6 w-6" />
                   </div>
                   <div className="min-w-0">
-                     <span className="block font-mono text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase">
-                        1º/1º GT · Estatística
+                     <span className="text-primary-600 block font-mono text-[10px] font-bold tracking-[0.3em] uppercase">
+                        Estatística
                      </span>
                      <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
-                        Horas por Aeronave
+                        <span className="hidden sm:inline">
+                           Horas por Aeronave
+                        </span>
+                        <span className="sm:hidden">Horas por ANV</span>
                      </h1>
                   </div>
                </div>
 
-               <div className="flex items-center gap-2.5">
+               <div className="flex shrink-0 items-center gap-2.5">
                   <Label
                      htmlFor="anoRef"
-                     className="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
+                     className="sr-only font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase sm:not-sr-only"
                   >
                      Ano
                   </Label>
@@ -67,7 +85,7 @@ export default function HorasAnvPage() {
             </div>
          </header>
 
-         {isLoading ? (
+         {isPending ? (
             <HorasAnvSkeleton />
          ) : isError && !hasData ? (
             <div
@@ -93,10 +111,10 @@ export default function HorasAnvPage() {
          ) : !hasData ? (
             <div className="rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-16 text-center">
                <p className="text-sm font-semibold text-slate-600">
-                  Nenhum dado encontrado para {anoRef}
+                  Nenhuma aeronave na frota
                </p>
                <p className="mt-1 text-xs text-slate-400">
-                  Selecione outro ano de referência.
+                  A organização não tem aeronaves ativas para exibir.
                </p>
             </div>
          ) : (
@@ -104,7 +122,7 @@ export default function HorasAnvPage() {
                {isError && (
                   <div
                      role="status"
-                     className="mb-5 flex flex-wrap items-center justify-between gap-2 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
+                     className="flex flex-wrap items-center justify-between gap-2 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
                   >
                      <span>
                         Não foi possível atualizar as horas por aeronave.
@@ -122,12 +140,12 @@ export default function HorasAnvPage() {
                )}
                <div
                   className={clsx(
-                     "flex flex-col gap-5 transition-opacity duration-200",
+                     "space-y-2 transition-opacity duration-200",
                      isRefetching && "pointer-events-none opacity-50"
                   )}
                >
-                  <HorasAnvStats data={data} ano={anoRef} />
-                  <HorasAnvTable data={data} anoRef={anoRef} />
+                  <HorasAnvStats data={data} ano={anoExibido} />
+                  <HorasAnvTable data={data} anoRef={anoExibido} />
                </div>
             </>
          )}

@@ -1,6 +1,6 @@
 import type { AnvHorasResponse } from "services/routes/estatistica/horasAnv";
 
-export interface HorasAnvStats {
+export interface HorasAnvResumo {
    /** Aeronaves com qualquer registro (voo ou pouso) no ano. */
    aeronavesAtivas: number;
    /** Total de aeronaves na frota retornada. */
@@ -9,13 +9,9 @@ export interface HorasAnvStats {
    picoIdx: number;
    /** Tempo de voo (min) do mês de pico. */
    picoTvoo: number;
-   /** Matrícula da aeronave que mais voou no ano, ou null. */
-   topMatricula: string | null;
-   /** Tempo de voo (min) da aeronave que mais voou. */
-   topTvoo: number;
 }
 
-export function getHorasAnvStats(data: AnvHorasResponse): HorasAnvStats {
+export function getHorasAnvStats(data: AnvHorasResponse): HorasAnvResumo {
    const aeronavesAtivas = data.items.filter(
       (i) => i.total_tvoo > 0 || i.total_pousos > 0
    ).length;
@@ -29,21 +25,10 @@ export function getHorasAnvStats(data: AnvHorasResponse): HorasAnvStats {
       }
    });
 
-   let topMatricula: string | null = null;
-   let topTvoo = 0;
-   data.items.forEach((i) => {
-      if (i.total_tvoo > topTvoo) {
-         topTvoo = i.total_tvoo;
-         topMatricula = i.matricula;
-      }
-   });
-
    return {
       aeronavesAtivas,
       totalFrota: data.items.length,
       picoIdx,
       picoTvoo,
-      topMatricula,
-      topTvoo,
    };
 }
