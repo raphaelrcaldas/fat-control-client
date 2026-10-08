@@ -8,23 +8,26 @@ import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useDadosBancarios, useDadosBancariosOrfaos } from "@/hooks/queries";
 import { DadosBancariosMasthead } from "./components/DadosBancariosMasthead";
 import { DadosBancariosToolbar } from "./components/DadosBancariosToolbar";
-import { ActiveFiltersBar } from "./components/ActiveFiltersBar";
 import { OrfaosAlert } from "./components/OrfaosAlert";
 import { EmptyState } from "./components/EmptyState";
 import ListDadosBancarios from "./components/listDadosBancarios";
 import ListDadosBancariosSkeleton from "./components/ListDadosBancariosSkeleton";
 import DetailDadosBancarios from "./components/detailDadosBancarios";
 import CleanupOrfaosModal from "./components/cleanupOrfaosModal";
-import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
 
 export default function DadosBancariosPage() {
    const [searchUser, setSearchUser] = useState("");
    const [showCreate, setShowCreate] = useState(false);
    const [showCleanup, setShowCleanup] = useState(false);
 
-   const debouncedSearch = useDebouncedValue(searchUser, 500);
+   const debouncedSearch = useDebouncedValue(searchUser, 300).trim();
 
-   const { data: orfaos = [] } = useDadosBancariosOrfaos();
+   // Só quem pode limpar vê o alerta; sem a permissão, nem busca os órfãos.
+   const { hasPerm } = usePermBased();
+   const { data: orfaos = [] } = useDadosBancariosOrfaos({
+      enabled: hasPerm("cegep.dados_bancarios", "delete"),
+   });
 
    const {
       data: dadosBancarios = [],
@@ -36,11 +39,10 @@ export default function DadosBancariosPage() {
       search: debouncedSearch || undefined,
    });
 
-   const hasActiveFilters = !!searchUser;
-   const clearFilters = () => setSearchUser("");
+   const clearSearch = () => setSearchUser("");
 
    return (
-      <div className="flex flex-col gap-3">
+      <div className="space-y-2">
          <DadosBancariosMasthead onCreate={() => setShowCreate(true)} />
 
          <DadosBancariosToolbar
@@ -49,16 +51,7 @@ export default function DadosBancariosPage() {
             total={dadosBancarios.length}
             isLoading={isLoading}
             isError={isError && dadosBancarios.length === 0}
-            hasActiveFilters={hasActiveFilters}
-            onClearFilters={clearFilters}
          />
-
-         {hasActiveFilters && (
-            <ActiveFiltersBar
-               search={searchUser}
-               onClearSearch={() => setSearchUser("")}
-            />
-         )}
 
          <PermBased resource="cegep.dados_bancarios" requiredPerm="delete">
             <OrfaosAlert
@@ -94,15 +87,19 @@ export default function DadosBancariosPage() {
                   </Button>
                </div>
             ) : dadosBancarios.length === 0 ? (
-               <EmptyState search={searchUser} onClear={clearFilters} />
+               <EmptyState
+                  search={debouncedSearch}
+                  onClear={clearSearch}
+                  onCreate={() => setShowCreate(true)}
+               />
             ) : (
-               <>
+               <div className="space-y-2">
                   {/* Refetch que falha com a lista em tela: mantém o dado e
                       avisa, sem trocar a tela pelo erro. */}
                   {isError && (
                      <p
                         role="status"
-                        className="mb-2 flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+                        className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
                      >
                         <HiExclamation
                            aria-hidden
@@ -122,7 +119,7 @@ export default function DadosBancariosPage() {
                      </p>
                   )}
                   <ListDadosBancarios dados={dadosBancarios} />
-               </>
+               </div>
             )}
          </section>
 

@@ -5,7 +5,7 @@ import {
    TextInput,
    Spinner,
 } from "flowbite-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { FaCheckCircle, FaSearch } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
 import { HiOutlineUserGroup, HiExclamationCircle } from "react-icons/hi";
@@ -27,6 +27,7 @@ export function SearchUser({
    userIdsIgnr?: number[];
 }) {
    const [query, setQuery] = useState("");
+   const searchInputRef = useRef<HTMLInputElement>(null);
    const debounced = useDebouncedValue(query, 350);
    const term = debounced.trim();
    const hasQuery = term.length >= MIN_CHARS;
@@ -57,13 +58,20 @@ export function SearchUser({
    }
 
    return (
-      <Modal size="lg" show={show} onClose={onClose} dismissible>
+      <Modal
+         size="lg"
+         show={show}
+         onClose={onClose}
+         dismissible
+         initialFocus={searchInputRef}
+      >
          <ModalHeader>Buscar Militar</ModalHeader>
          <ModalBody>
             <div className="space-y-3">
                {/* Campo de busca — busca automática conforme digita */}
                <div className="relative">
                   <TextInput
+                     ref={searchInputRef}
                      icon={IoMdSearch}
                      placeholder="Digite o nome do militar"
                      value={query}
@@ -76,7 +84,6 @@ export function SearchUser({
                            e.preventDefault();
                         }
                      }}
-                     autoFocus
                      autoComplete="off"
                   />
                   {loading && (

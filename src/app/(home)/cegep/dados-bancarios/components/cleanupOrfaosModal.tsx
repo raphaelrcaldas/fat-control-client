@@ -47,13 +47,13 @@ export default function CleanupOrfaosModal({
    }, [show]);
 
    const allSelected = useMemo(
-      () => orfaos.length > 0 && selectedIds.size === orfaos.length,
-      [orfaos.length, selectedIds.size]
+      () => orfaos.length > 0 && orfaos.every((d) => selectedIds.has(d.id)),
+      [orfaos, selectedIds]
    );
 
    const toggleAll = () => {
       setSelectedIds((prev) =>
-         prev.size === orfaos.length
+         orfaos.every((d) => prev.has(d.id))
             ? new Set()
             : new Set(orfaos.map((d) => d.id))
       );
@@ -72,7 +72,8 @@ export default function CleanupOrfaosModal({
    };
 
    const handleCleanup = async () => {
-      const ids = Array.from(selectedIds);
+      // Só o que ainda está na lista: um refetch pode ter tirado algum id.
+      const ids = orfaos.filter((d) => selectedIds.has(d.id)).map((d) => d.id);
       if (ids.length === 0) return;
 
       try {
@@ -95,12 +96,12 @@ export default function CleanupOrfaosModal({
    };
 
    return (
-      <Modal show={show} onClose={onClose} size="3xl" dismissible>
+      <Modal show={show} onClose={onClose} size="3xl" dismissible={!isDeleting}>
          <ModalHeader>
             Limpar dados bancários de militares desativados
          </ModalHeader>
-         <ModalBody>
-            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+         <ModalBody className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
                Selecione os registros que deseja remover. Estes pertencem a
                militares atualmente desativados.
             </p>

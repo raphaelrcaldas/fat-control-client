@@ -18,6 +18,7 @@ import {
    DadosBancariosCreate,
    DadosBancariosUpdate,
 } from "services/routes/cegep/dadosBancarios";
+import { ApiError } from "services/Api";
 import { sortByAntiguidade } from "utils/sortByAntiguidade";
 
 // ========================================
@@ -61,9 +62,13 @@ export function remuneracaoQueryOptions(userId: number) {
 /**
  * Lista de dados bancários com filtros
  */
-export function useDadosBancarios(params?: GetDadosBancariosParams) {
+export function useDadosBancarios(
+   params?: GetDadosBancariosParams,
+   { enabled = true } = {}
+) {
    return useQuery({
       queryKey: dadosBancariosKeys.list(params),
+      enabled,
       queryFn: async ({ signal }) => {
          const data = await getDadosBancarios(params, signal);
          return sortByAntiguidade(data);
@@ -74,11 +79,13 @@ export function useDadosBancarios(params?: GetDadosBancariosParams) {
 }
 
 /**
- * Lista de dados bancários órfãos (de militares desativados)
+ * Lista de dados bancários órfãos (de militares desativados). `enabled`
+ * permite não buscar para quem não pode limpá-los — o alerta não aparece.
  */
-export function useDadosBancariosOrfaos() {
+export function useDadosBancariosOrfaos({ enabled = true } = {}) {
    return useQuery({
       queryKey: dadosBancariosKeys.orfaos(),
+      enabled,
       queryFn: async ({ signal }) => {
          const data = await getDadosBancariosOrfaos(signal);
          return sortByAntiguidade(data);
@@ -102,7 +109,10 @@ export function useCreateDadosBancarios() {
       mutationFn: async (data: DadosBancariosCreate) => {
          const result = await createDadosBancarios(data);
          if (!result.ok) {
-            throw new Error(result.message || "Erro ao criar dados bancários");
+            throw new ApiError(
+               result.message || "Erro ao criar dados bancários",
+               result.errors
+            );
          }
          return result;
       },
@@ -130,8 +140,9 @@ export function useUpdateDadosBancarios() {
       }) => {
          const result = await updateDadosBancarios(id, data);
          if (!result.ok) {
-            throw new Error(
-               result.message || "Erro ao atualizar dados bancários"
+            throw new ApiError(
+               result.message || "Erro ao atualizar dados bancários",
+               result.errors
             );
          }
          return result;
@@ -173,8 +184,9 @@ export function useDeleteDadosBancariosOrfaos() {
       mutationFn: async (ids: number[]) => {
          const result = await deleteDadosBancariosOrfaos(ids);
          if (!result.ok) {
-            throw new Error(
-               result.message || "Erro ao limpar dados bancários órfãos"
+            throw new ApiError(
+               result.message || "Erro ao limpar dados bancários órfãos",
+               result.errors
             );
          }
          return result;
@@ -200,8 +212,9 @@ export function useDeleteDadosBancarios() {
       mutationFn: async (id: number) => {
          const result = await deleteDadosBancarios(id);
          if (!result.ok) {
-            throw new Error(
-               result.message || "Erro ao deletar dados bancários"
+            throw new ApiError(
+               result.message || "Erro ao deletar dados bancários",
+               result.errors
             );
          }
          return result;

@@ -10,11 +10,18 @@ import {
 } from "@/hooks/queries";
 import { monthInputToIso } from "@/../utils/dateHandler";
 import { realCurrency } from "@/../utils/financeiro";
+import {
+   fieldErrorsFrom,
+   formatSaveError,
+   translatePydanticMessage,
+} from "@/../utils/apiErrors";
 import { BANCOS_BRASILEIROS } from "../constants/bancos";
 import {
+   DADOS_BANCARIOS_LABELS,
    DadosBancariosFormData,
    createEmptyForm,
    formFromDados,
+   isMesAnoCompleto,
    toDadosBancariosPayload,
    validateDadosBancariosForm,
 } from "../helpers/dadosBancariosForm";
@@ -110,7 +117,7 @@ export function useDadosBancariosForm({
          }));
          return;
       }
-      if (!formData.mes_ano) {
+      if (!isMesAnoCompleto(formData.mes_ano)) {
          setErrors((prev) => ({
             ...prev,
             mes_ano: "Informe o mês/ano antes de buscar no Portal",
@@ -138,7 +145,9 @@ export function useDadosBancariosForm({
          push({
             message: `Remuneração bruta de ${realCurrency(
                valor
-            )} preenchida. Revise e clique em Atualizar para salvar.`,
+            )} preenchida. Revise e clique em ${
+               isEdit ? "Atualizar" : "Cadastrar"
+            } para salvar.`,
             type: "success",
          });
       } catch (err) {
@@ -181,12 +190,27 @@ export function useDadosBancariosForm({
          });
          onClose();
       } catch (err) {
+         // 422: cada recusa volta ao seu campo, além do resumo no toast.
+         const apiErrors = fieldErrorsFrom(err);
+         if (apiErrors) {
+            const porCampo: Record<string, string> = {};
+            for (const [key, msg] of Object.entries(apiErrors)) {
+               const campo = key.split(".").filter((s) => s !== "body")[0];
+               // A UI exibe o erro do militar em `errors.user`.
+               const alvo = campo === "user_id" ? "user" : campo;
+               if (alvo && (alvo === "user" || alvo in formData)) {
+                  porCampo[alvo] = translatePydanticMessage(String(msg));
+               }
+            }
+            setErrors(porCampo);
+         }
          push({
             title: "Erro",
-            message:
-               err instanceof Error
-                  ? err.message
-                  : "Erro ao salvar dados bancários",
+            message: formatSaveError(
+               err,
+               "Erro ao salvar dados bancários",
+               DADOS_BANCARIOS_LABELS
+            ),
             type: "error",
          });
       }

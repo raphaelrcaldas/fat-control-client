@@ -6,6 +6,8 @@ import {
    TableRow,
    TableCell,
 } from "flowbite-react";
+import { TABELA_DADOS_BANCARIOS_THEME } from "./listDadosBancarios";
+import { SortableHeadCell } from "./SortableHeadCell";
 
 interface ListDadosBancariosSkeletonProps {
    rows?: number;
@@ -29,40 +31,57 @@ export default function ListDadosBancariosSkeleton({
          className="overflow-x-auto rounded border border-slate-200 shadow-sm"
       >
          <span className="sr-only">Carregando dados bancários…</span>
-         <Table hoverable aria-hidden>
+         <Table
+            hoverable
+            aria-hidden
+            className="whitespace-nowrap"
+            theme={TABELA_DADOS_BANCARIOS_THEME}
+         >
             <TableHead>
                <TableRow>
-                  <TableHeadCell>Militar</TableHeadCell>
-                  <TableHeadCell>Nome Completo</TableHeadCell>
+                  {/* Mesma anatomia ordenável da tabela: os ícones ocupam
+                      largura e mudariam a coluna ao chegar o dado. */}
+                  <SortableHeadCell label="Militar" active direction="asc" />
+                  <TableHeadCell className="min-w-[140px]">
+                     Nome Completo
+                  </TableHeadCell>
                   <TableHeadCell>Banco</TableHeadCell>
                   <TableHeadCell>Agência</TableHeadCell>
                   <TableHeadCell>Conta</TableHeadCell>
-                  <TableHeadCell className="text-center">
+                  <TableHeadCell className="text-right">
                      Remuneração
                   </TableHeadCell>
-                  <TableHeadCell className="text-center">Mês/Ano</TableHeadCell>
-                  <TableHeadCell className="text-center">
+                  <SortableHeadCell
+                     label="Mês/Ano"
+                     align="center"
+                     active={false}
+                     direction="asc"
+                  />
+                  <TableHeadCell className="text-right">
                      Aux. Transp.
                   </TableHeadCell>
-                  <TableHeadCell className="text-center">
-                     Atualizado em
-                  </TableHeadCell>
+                  <SortableHeadCell
+                     label="Atualizado em"
+                     align="center"
+                     active={false}
+                     direction="asc"
+                  />
                </TableRow>
             </TableHead>
             <TableBody>
                {Array.from({ length: rows }).map((_, i) => (
-                  <TableRow
-                     key={i}
-                     className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                  >
+                  <TableRow key={i} className="bg-white">
                      <TableCell>
                         <Bar className="w-24" />
                      </TableCell>
-                     <TableCell>
+                     <TableCell className="w-full max-w-0 min-w-[140px]">
                         <Bar className="w-40" />
                      </TableCell>
                      <TableCell>
-                        <Bar className="w-28" />
+                        <span className="inline-flex items-baseline gap-2">
+                           <Bar className="w-7" />
+                           <Bar className="w-24" />
+                        </span>
                      </TableCell>
                      <TableCell>
                         <Bar className="w-12" />
@@ -70,13 +89,13 @@ export default function ListDadosBancariosSkeleton({
                      <TableCell>
                         <Bar className="w-16" />
                      </TableCell>
-                     <TableCell className="text-center">
+                     <TableCell className="text-right">
                         <Bar className="w-20" />
                      </TableCell>
                      <TableCell className="text-center">
                         <Bar className="w-14" />
                      </TableCell>
-                     <TableCell className="text-center">
+                     <TableCell className="text-right">
                         <Bar className="w-16" />
                      </TableCell>
                      <TableCell className="text-center">

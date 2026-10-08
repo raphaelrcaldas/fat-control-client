@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
    Modal,
    ModalHeader,
@@ -13,7 +13,9 @@ import {
 import { HiCloudDownload, HiTrash } from "react-icons/hi";
 import { DadosBancariosWithUser } from "services/routes/cegep/dadosBancarios";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { PermBased } from "@/app/(home)/hooks/usePermBased";
+import { PermBased, usePermBased } from "@/app/(home)/hooks/usePermBased";
+import { useDadosBancarios } from "@/hooks/queries";
+import { realCurrency } from "@/../utils/financeiro";
 import { useDadosBancariosForm } from "../hooks/useDadosBancariosForm";
 import { BANCOS_BRASILEIROS } from "../constants/bancos";
 import { UserSelector } from "./UserSelector";
@@ -49,6 +51,24 @@ export default function DetailDadosBancarios({
 
    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+   // Sem permissão de gravar, o modal é só consulta: campos desabilitados em
+   // vez de editáveis sem botão de salvar.
+   const { hasPerm } = usePermBased();
+   const canSave = hasPerm(
+      "cegep.dados_bancarios",
+      isEdit ? "update" : "create"
+   );
+   const isBusy = isLoading || isDeleting;
+
+   // No cadastro, quem já tem conta sai desabilitado na busca: escolhê-lo só
+   // falhava no salvar, com o formulário inteiro preenchido. Mesma chave da
+   // lista sem busca da página, então costuma vir do cache.
+   const { data: cadastrados } = useDadosBancarios({}, { enabled: !isEdit });
+   const idsCadastrados = useMemo(
+      () => cadastrados?.map((d) => d.user_id),
+      [cadastrados]
+   );
+
    const handleConfirmDelete = async () => {
       await remove();
       setShowDeleteConfirm(false);
@@ -56,17 +76,25 @@ export default function DetailDadosBancarios({
 
    return (
       <>
-         <Modal show={show} onClose={onClose} size="lg" dismissible>
+         <Modal show={show} onClose={onClose} size="lg" dismissible={!isBusy}>
             <ModalHeader>
-               {isEdit ? "Editar Dados Bancários" : "Cadastrar Dados Bancários"}
+               {!isEdit
+                  ? "Cadastrar Dados Bancários"
+                  : canSave
+                    ? "Editar Dados Bancários"
+                    : "Dados Bancários"}
             </ModalHeader>
             <ModalBody>
-               <div className="space-y-6">
+               <fieldset
+                  disabled={!canSave || isLoading}
+                  className="min-w-0 space-y-6"
+               >
                   <UserSelector
                      value={selectedUser}
                      onChange={setSelectedUser}
                      readOnly={isEdit}
                      error={errors.user}
+                     userIdsIgnr={idsCadastrados}
                   />
 
                   <div className="border-t border-slate-200 dark:border-gray-700" />
@@ -104,9 +132,7 @@ export default function DetailDadosBancarios({
                   {/* Agência e Conta */}
                   <div className="grid grid-cols-2 gap-4">
                      <div>
-                        <Label htmlFor="agencia" className="text-xs">
-                           Agência
-                        </Label>
+                        <Label htmlFor="agencia">Agência *</Label>
                         <TextInput
                            id="agencia"
                            name="agencia"
@@ -122,9 +148,7 @@ export default function DetailDadosBancarios({
                         )}
                      </div>
                      <div>
-                        <Label htmlFor="conta" className="text-xs">
-                           Conta Corrente
-                        </Label>
+                        <Label htmlFor="conta">Conta Corrente *</Label>
                         <TextInput
                            id="conta"
                            name="conta"
@@ -150,15 +174,22 @@ export default function DetailDadosBancarios({
                         Mês a que os valores de remuneração e auxílio transporte
                         se referem
                      </p>
-                     <div className="flex items-end gap-2">
-                        <MesAnoPicker
-                           value={formData.mes_ano}
-                           onChange={setMesAno}
-                           error={!!errors.mes_ano}
-                        />
+                     {/* No celular o botão desce para a linha de baixo: lado a
+                         lado, o select do mês ficava com ~40px. */}
+                     <div className="flex flex-col gap-2 sm:flex-row">
+                        <div className="flex min-w-0 flex-1 gap-2">
+                           <MesAnoPicker
+                              value={formData.mes_ano}
+                              onChange={setMesAno}
+                              error={!!errors.mes_ano}
+                           />
+                        </div>
+                        {/* sm:h-auto: o h-10 do Button (35px) ficava 1,6px
+                            abaixo dos selects (36,6px); sem ele, estica na
+                            linha. */}
                         <Button
                            color="light"
-                           size="sm"
+                           className="shrink-0 sm:h-auto"
                            onClick={handleSyncPortal}
                            disabled={isSyncing || isLoading}
                            aria-busy={isSyncing}
@@ -186,9 +217,7 @@ export default function DetailDadosBancarios({
                   {/* Remuneração e Auxílio Transporte */}
                   <div className="grid grid-cols-2 gap-4">
                      <div>
-                        <Label htmlFor="remuneracao" className="text-xs">
-                           Remuneração (R$)
-                        </Label>
+                        <Label htmlFor="remuneracao">Remuneração (R$)</Label>
                         <TextInput
                            id="remuneracao"
                            name="remuneracao"
@@ -200,14 +229,20 @@ export default function DetailDadosBancarios({
                            placeholder="0,00"
                            color={errors.remuneracao ? "failure" : "gray"}
                         />
-                        {errors.remuneracao && (
+                        {errors.remuneracao ? (
                            <p className="mt-1 text-sm text-red-600">
                               {errors.remuneracao}
                            </p>
+                        ) : (
+                           formData.remuneracao !== "" && (
+                              <p className="mt-1 text-xs text-slate-500 tabular-nums">
+                                 = {realCurrency(Number(formData.remuneracao))}
+                              </p>
+                           )
                         )}
                      </div>
                      <div>
-                        <Label htmlFor="aux_transp" className="text-xs">
+                        <Label htmlFor="aux_transp">
                            Auxílio Transporte (R$)
                         </Label>
                         <TextInput
@@ -221,14 +256,20 @@ export default function DetailDadosBancarios({
                            placeholder="0,00"
                            color={errors.aux_transp ? "failure" : "gray"}
                         />
-                        {errors.aux_transp && (
+                        {errors.aux_transp ? (
                            <p className="mt-1 text-sm text-red-600">
                               {errors.aux_transp}
                            </p>
+                        ) : (
+                           formData.aux_transp !== "" && (
+                              <p className="mt-1 text-xs text-slate-500 tabular-nums">
+                                 = {realCurrency(Number(formData.aux_transp))}
+                              </p>
+                           )
                         )}
                      </div>
                   </div>
-               </div>
+               </fieldset>
             </ModalBody>
             <ModalFooter>
                <div className="flex w-full justify-between">
@@ -238,12 +279,16 @@ export default function DetailDadosBancarios({
                            resource="cegep.dados_bancarios"
                            requiredPerm="delete"
                         >
+                           {/* Contorno com texto vermelho: na 11GT a marca é
+                               vermelha e o "Atualizar" (primary) ficava idêntico
+                               a um Deletar preenchido. */}
                            <Button
-                              color="red"
+                              color="light"
+                              className="text-red-700 hover:bg-red-50"
                               onClick={() => setShowDeleteConfirm(true)}
                               disabled={isLoading}
                            >
-                              <HiTrash className="mr-2" />
+                              <HiTrash className="mr-2 h-4 w-4" />
                               Deletar
                            </Button>
                         </PermBased>
@@ -255,7 +300,7 @@ export default function DetailDadosBancarios({
                         onClick={onClose}
                         disabled={isLoading}
                      >
-                        Cancelar
+                        {canSave ? "Cancelar" : "Fechar"}
                      </Button>
                      <PermBased
                         resource="cegep.dados_bancarios"

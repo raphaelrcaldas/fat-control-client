@@ -10,6 +10,8 @@ interface UserSelectorProps {
    onChange: (user: UserPublic | null) => void;
    readOnly?: boolean;
    error?: string;
+   /** Militares que já têm cadastro: aparecem desabilitados na busca. */
+   userIdsIgnr?: number[];
 }
 
 function UserCard({ user }: { user: UserPublic }) {
@@ -45,6 +47,7 @@ export function UserSelector({
    onChange,
    readOnly = false,
    error,
+   userIdsIgnr,
 }: UserSelectorProps) {
    const [showSearch, setShowSearch] = useState(false);
 
@@ -75,12 +78,13 @@ export function UserSelector({
             </div>
          ) : (
             <>
+               {/* light: o "Cadastrar" do rodapé é o único primário do modal */}
                <Button
-                  color="primary"
+                  color="light"
                   className="w-full"
                   onClick={() => setShowSearch(true)}
                >
-                  <HiUser className="mr-2" />
+                  <HiUser className="mr-2 h-4 w-4" />
                   Selecionar Usuário
                </Button>
                {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
@@ -91,6 +95,7 @@ export function UserSelector({
             show={showSearch}
             setShow={setShowSearch}
             setUser={onChange}
+            userIdsIgnr={userIdsIgnr}
          />
       </div>
    );

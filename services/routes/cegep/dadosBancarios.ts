@@ -1,4 +1,4 @@
-import request, { parseApiResponse, readApiData } from "../../Api";
+import request, { ApiError, parseApiResponse, readApiData } from "../../Api";
 import type { ApiResponse, ApiResult } from "@/types/api";
 import { UserPublic } from "../users";
 import { cegepRoute } from ".";
@@ -173,16 +173,19 @@ export async function syncRemuneracaoPortal(
    user_id: number,
    mes_ano: string
 ): Promise<SyncRemuneracaoResponse> {
-   const response = await request(
-      "POST",
-      `${dadosBancariosRoute}sync-remuneracao`,
-      { user_id, mes_ano }
+   // parseApiResponse, não `response.json()`: o 502/504 do Portal pode chegar
+   // como HTML do proxy, e o JSON.parse cru virava "Unexpected token '<'".
+   const result = await parseApiResponse<SyncRemuneracaoResponse>(
+      await request("POST", `${dadosBancariosRoute}sync-remuneracao`, {
+         user_id,
+         mes_ano,
+      })
    );
-   const json = (await response.json()) as ApiResponse<SyncRemuneracaoResponse>;
-   if (!response.ok || !json.data) {
-      throw new Error(
-         json.message || "Erro ao consultar Portal da Transparência"
+   if (!result.ok || !result.data) {
+      throw new ApiError(
+         result.message || "Erro ao consultar Portal da Transparência",
+         result.errors
       );
    }
-   return json.data;
+   return result.data;
 }
