@@ -1,12 +1,17 @@
 "use client";
 
-import { Alert, Button, Select } from "flowbite-react";
-import { FaCheckCircle, FaSearch, FaTimes, FaUserPlus } from "react-icons/fa";
+import { Alert, Button, Label, Select } from "flowbite-react";
+import { FaSearch, FaTimes, FaUserPlus } from "react-icons/fa";
+import { FaCircleInfo } from "react-icons/fa6";
 import { SearchUser } from "src/app/(home)/users/components/searchUser";
-import { type Role, type UserWithRole } from "services/routes/security/roles";
+import {
+   type RoleDetail,
+   type UserWithRole,
+} from "services/routes/security/roles";
 import { UserPublic } from "services/routes/users";
 import type { Tenant } from "services/routes/tenants";
 import { RoleModalShell } from "./RoleModalShell";
+import { RolePermissionsSummary } from "./RolePermissionsSummary";
 import { tenantLabel } from "../helpers/tenantLabel";
 import { useAddRoleForm } from "../hooks/useAddRoleForm";
 
@@ -19,7 +24,7 @@ export default function UserAddRole({
 }: {
    show: boolean;
    setShow: (s: boolean) => void;
-   roles: Role[];
+   roles: RoleDetail[];
    tenants: Tenant[];
    existingRoles: UserWithRole[];
 }) {
@@ -39,6 +44,7 @@ export default function UserAddRole({
       selectedUser,
       selectedRole,
       selectedOrg,
+      selectedOrgLabel,
       showSearch,
       setShowSearch,
       validationError,
@@ -49,6 +55,8 @@ export default function UserAddRole({
       isFormValid,
       isSaving,
    } = form;
+
+   const pickedRole = roles.find((r) => r.id === selectedRole);
 
    // O vínculo é único por (usuário, org): só bloqueia na busca quem já
    // tem perfil na org de destino selecionada (não em qualquer org).
@@ -71,10 +79,17 @@ export default function UserAddRole({
          onConfirm={form.handleSubmit}
       >
          {/* Seleção de Usuário */}
-         <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+         <div
+            role="group"
+            aria-labelledby="add-role-user-label"
+            className="space-y-2"
+         >
+            <p
+               id="add-role-user-label"
+               className="text-sm font-semibold text-slate-700"
+            >
                Usuário *
-            </label>
+            </p>
             <div className="flex items-center gap-2">
                {selectedUser ? (
                   <div className="border-primary-200 bg-primary-50 flex flex-1 items-center justify-between rounded border p-3">
@@ -83,22 +98,26 @@ export default function UserAddRole({
                            {selectedUser.posto.short}
                         </div>
                         <div>
-                           <p className="font-semibold text-gray-800 uppercase">
-                              {selectedUser.posto.short}{" "}
+                           <p className="font-semibold text-slate-800 uppercase">
                               {selectedUser.nome_guerra}
                            </p>
-                           <p className="text-xs text-gray-500 uppercase">
+                           <p className="text-xs text-slate-600 uppercase">
                               {selectedUser.unidade}
                            </p>
                         </div>
                      </div>
-                     <Button size="xs" color="light" onClick={form.clearUser}>
+                     <Button
+                        size="xs"
+                        color="light"
+                        onClick={form.clearUser}
+                        aria-label="Remover usuário selecionado"
+                     >
                         <FaTimes />
                      </Button>
                   </div>
                ) : (
-                  <div className="flex-1 rounded border border-dashed border-slate-200 bg-gray-50 p-3">
-                     <p className="text-center text-sm text-gray-500">
+                  <div className="flex-1 rounded border border-dashed border-slate-200 bg-slate-50 p-3">
+                     <p className="text-center text-sm text-slate-500">
                         Nenhum usuário selecionado
                      </p>
                   </div>
@@ -111,11 +130,15 @@ export default function UserAddRole({
          </div>
 
          {/* Seleção de Organização */}
-         <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+         <div className="space-y-2">
+            <Label
+               htmlFor="add-role-org"
+               className="block text-sm font-semibold text-slate-700"
+            >
                Organização *
-            </label>
+            </Label>
             <Select
+               id="add-role-org"
                value={selectedOrg ?? ""}
                disabled={!isSystemScope}
                onChange={(e) =>
@@ -143,13 +166,13 @@ export default function UserAddRole({
             </Select>
             {isSystemScope ? (
                orgRequired && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="text-sm text-slate-500">
                      Apenas o perfil de administrador pode ser do sistema.
                      Selecione uma unidade.
                   </p>
                )
             ) : (
-               <p className="mt-1 text-sm text-gray-500">
+               <p className="text-sm text-slate-500">
                   Você administra apenas a sua unidade. O vínculo será criado
                   nela.
                </p>
@@ -157,11 +180,15 @@ export default function UserAddRole({
          </div>
 
          {/* Seleção de Perfil */}
-         <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+         <div className="space-y-2">
+            <Label
+               htmlFor="add-role-perfil"
+               className="block text-sm font-semibold text-slate-700"
+            >
                Perfil de Acesso *
-            </label>
+            </Label>
             <Select
+               id="add-role-perfil"
                value={selectedRole ?? ""}
                onChange={(e) => form.pickRole(Number(e.target.value) || null)}
             >
@@ -172,28 +199,23 @@ export default function UserAddRole({
                   </option>
                ))}
             </Select>
+            {pickedRole && (
+               <RolePermissionsSummary key={pickedRole.id} role={pickedRole} />
+            )}
          </div>
 
          {/* Preview da ação */}
          {isFormValid && (
-            <Alert color="warning">
-               <div className="flex items-start gap-2">
-                  <FaCheckCircle className="mt-0.5 shrink-0" />
-                  <div className="text-sm">
-                     <p className="mb-1 font-semibold">Confirmação:</p>
-                     <p>
-                        O usuário{" "}
-                        <strong className="uppercase">
-                           {selectedUser!.posto.short}{" "}
-                           {selectedUser!.nome_guerra}
-                        </strong>{" "}
-                        receberá o perfil{" "}
-                        <strong className="uppercase">
-                           {roles.find((r) => r.id === selectedRole)?.name}
-                        </strong>
-                     </p>
-                  </div>
-               </div>
+            <Alert color="gray" icon={FaCircleInfo} role="status">
+               <p className="text-sm">
+                  <strong className="uppercase">
+                     {selectedUser!.posto.short} {selectedUser!.nome_guerra}
+                  </strong>{" "}
+                  receberá o perfil{" "}
+                  <strong className="uppercase">{pickedRole?.name}</strong>{" "}
+                  {selectedOrg === null ? "no escopo de" : "em"}{" "}
+                  <strong>{selectedOrgLabel}</strong>
+               </p>
             </Alert>
          )}
 

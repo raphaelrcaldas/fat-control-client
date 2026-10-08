@@ -9,7 +9,8 @@ export function RoleBadge({ roleName }: RoleBadgeProps) {
    const colors = getRoleTheme(roleName);
    return (
       <span
-         className={`inline-flex items-center rounded px-2.5 py-1 text-sm font-medium uppercase ${colors.bg} ${colors.text}`}
+         title={roleName}
+         className={`inline-block max-w-[96px] truncate rounded px-1.5 py-1 align-middle text-xs font-medium uppercase sm:max-w-none sm:px-2.5 sm:text-sm ${colors.bg} ${colors.text}`}
       >
          {roleName}
       </span>

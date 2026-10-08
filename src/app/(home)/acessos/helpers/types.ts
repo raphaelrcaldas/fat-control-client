@@ -4,6 +4,8 @@ export interface DeletingUserRole {
    roleId: number;
    organizacaoId: string | null;
    userName: string;
+   roleName: string;
+   orgLabel: string;
 }
 
 /** Vínculo em edição (alimenta o modal de edição de perfil). */

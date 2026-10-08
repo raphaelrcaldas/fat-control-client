@@ -4,10 +4,15 @@ import { useState } from "react";
 import { Button } from "flowbite-react";
 import { useUsersRoles, useRoles } from "@/hooks/queries/useRoles";
 import { useTenants } from "@/hooks/queries/useTenants";
+import type { UserWithRole } from "services/routes/security/roles";
 import { AcessosHeader } from "./components/AcessosHeader";
 import { AcessosSkeleton } from "./components/AcessosSkeleton";
 import { UsersTab } from "./components/UsersTab";
 import UserAddRole from "./components/UserAddRole";
+import { useUserRoleFilter } from "./hooks/useUserRoleFilter";
+
+/** Referência estável enquanto a lista carrega (evita array novo por render). */
+const EMPTY_USER_ROLES: UserWithRole[] = [];
 
 export default function AcessosPage() {
    const {
@@ -37,13 +42,25 @@ export default function AcessosPage() {
 
    const [showAddModal, setShowAddModal] = useState(false);
 
+   // Filtro aqui (e não no UsersTab): o masthead mostra "3 de 12 vínculos"
+   const {
+      filterName,
+      setFilterName,
+      roleFilter,
+      setRoleFilter,
+      roleOptions,
+      clearFilters,
+      filteredUsers,
+   } = useUserRoleFilter(userRoles ?? EMPTY_USER_ROLES);
+
    const catalogoErro =
       (rolesError && !rolesData) || (tenantsError && !tenantsData);
 
    return (
       <div className="space-y-2">
          <AcessosHeader
-            count={userRoles?.length}
+            count={userRoles ? filteredUsers.length : undefined}
+            total={userRoles?.length}
             onAdd={() => setShowAddModal(true)}
             addDisabled={!rolesData || !tenantsData}
          />
@@ -113,10 +130,16 @@ export default function AcessosPage() {
                   </p>
                )}
                <UsersTab
-                  userRoles={userRoles}
                   roles={roles}
                   tenants={tenants}
                   isFetching={isFetching}
+                  filterName={filterName}
+                  setFilterName={setFilterName}
+                  roleFilter={roleFilter}
+                  setRoleFilter={setRoleFilter}
+                  roleOptions={roleOptions}
+                  onClearFilters={clearFilters}
+                  filteredUsers={filteredUsers}
                   editDisabled={!rolesData}
                   onRefresh={() => refetch()}
                />
@@ -128,7 +151,7 @@ export default function AcessosPage() {
             setShow={setShowAddModal}
             roles={roles}
             tenants={tenants}
-            existingRoles={userRoles ?? []}
+            existingRoles={userRoles ?? EMPTY_USER_ROLES}
          />
       </div>
    );

@@ -79,12 +79,10 @@ export function useEditRoleForm({
             onSuccess();
             return true;
          }
-         push({ type: "error", message: result.message });
          setValidationError(result.message || "Erro ao atualizar perfil");
          return false;
       } catch {
          const errorMsg = "Erro ao atualizar perfil. Tente novamente.";
-         push({ type: "error", message: errorMsg });
          setValidationError(errorMsg);
          return false;
       }

@@ -6,6 +6,7 @@ import { useToast } from "@/app/context/toast";
 import { useAuth } from "@/app/context/auth";
 import { useAddUserRole } from "@/hooks/queries/useRoles";
 import { addRoleSchema } from "../schemas/roleSchemas";
+import { orgLabel } from "../helpers/tenantLabel";
 
 interface UseAddRoleFormArgs {
    roles: Role[];
@@ -55,6 +56,9 @@ export function useAddRoleForm({
          setSelectedOrg(activeOrg);
       }
    }, [show, isSystemScope, activeOrg]);
+
+   // Rótulo do destino do vínculo: "Sistema" (org NULL) ou a sigla da org
+   const selectedOrgLabel = orgLabel(selectedOrg, tenants);
 
    const validationInput = {
       selectedUser,
@@ -106,16 +110,26 @@ export function useAddRoleForm({
             organizacaoId: selectedOrg,
          });
          if (result.ok) {
-            push({ type: "success", message: result.message });
+            // O endpoint de listagem só devolve a org ativa: um vínculo criado
+            // em outra org não aparece na tela, então o toast diz onde foi.
+            const foraDaOrgAtiva = selectedOrg !== activeOrg;
+            push({
+               type: "success",
+               message: foraDaOrgAtiva
+                  ? `Vínculo criado em ${selectedOrgLabel}. Ele não aparece nesta lista, que mostra ${
+                       activeOrg === null
+                          ? "só os vínculos de Sistema"
+                          : "só a organização atual"
+                    }.`
+                  : result.message,
+            });
             onSuccess();
             return true;
          }
-         push({ type: "error", message: result.message });
          setValidationError(result.message || "Erro ao adicionar perfil");
          return false;
       } catch {
          const errorMsg = "Erro ao adicionar perfil. Tente novamente.";
-         push({ type: "error", message: errorMsg });
          setValidationError(errorMsg);
          return false;
       }
@@ -126,6 +140,7 @@ export function useAddRoleForm({
       selectedUser,
       selectedRole,
       selectedOrg,
+      selectedOrgLabel,
       showSearch,
       setShowSearch,
       validationError,

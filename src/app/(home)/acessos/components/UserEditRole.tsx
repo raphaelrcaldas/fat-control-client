@@ -1,9 +1,10 @@
 "use client";
 
-import { Select } from "flowbite-react";
+import { Label, Select } from "flowbite-react";
 import { FaBuilding, FaUserPen } from "react-icons/fa6";
-import { type Role } from "services/routes/security/roles";
+import { type RoleDetail } from "services/routes/security/roles";
 import { RoleModalShell } from "./RoleModalShell";
+import { RolePermissionsSummary } from "./RolePermissionsSummary";
 import type { EditingRole } from "../helpers/types";
 import { useEditRoleForm } from "../hooks/useEditRoleForm";
 
@@ -15,7 +16,7 @@ export default function UserEditRole({
 }: {
    show: boolean;
    setShow: (s: boolean) => void;
-   roles: Role[];
+   roles: RoleDetail[];
    editing: EditingRole | null;
 }) {
    const form = useEditRoleForm({
@@ -31,6 +32,7 @@ export default function UserEditRole({
    }
 
    const { selectedRole, validationError, isSystemScope, isSaving } = form;
+   const pickedRole = roles.find((r) => r.id === selectedRole);
 
    return (
       <RoleModalShell
@@ -47,26 +49,32 @@ export default function UserEditRole({
          onConfirm={form.handleSubmit}
       >
          {/* Organização (somente leitura) */}
-         <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
-               Organização
-            </label>
-            <div className="flex items-center gap-2 rounded border border-slate-200 bg-gray-50 p-3 text-sm font-medium text-gray-700 uppercase">
-               <FaBuilding className="text-primary-600" />
-               {editing?.orgLabel}
-            </div>
-            <p className="mt-1 text-sm text-gray-500">
+         <div className="space-y-2">
+            <dl className="space-y-2">
+               <dt className="text-sm font-semibold text-slate-700">
+                  Organização
+               </dt>
+               <dd className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 p-3 text-sm font-medium text-slate-700 uppercase">
+                  <FaBuilding className="text-primary-600" />
+                  {editing?.orgLabel}
+               </dd>
+            </dl>
+            <p className="text-sm text-slate-500">
                Para mover de unidade, remova este perfil e adicione na outra
                unidade.
             </p>
          </div>
 
          {/* Seleção de Perfil */}
-         <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">
+         <div className="space-y-2">
+            <Label
+               htmlFor="edit-role-perfil"
+               className="block text-sm font-semibold text-slate-700"
+            >
                Perfil de Acesso *
-            </label>
+            </Label>
             <Select
+               id="edit-role-perfil"
                value={selectedRole ?? ""}
                onChange={(e) => form.pickRole(Number(e.target.value) || null)}
             >
@@ -82,10 +90,13 @@ export default function UserEditRole({
                ))}
             </Select>
             {isSystemScope && (
-               <p className="mt-1 text-sm text-gray-500">
+               <p className="text-sm text-slate-500">
                   Vínculo de sistema: apenas o perfil de administrador é
                   permitido.
                </p>
+            )}
+            {pickedRole && (
+               <RolePermissionsSummary key={pickedRole.id} role={pickedRole} />
             )}
          </div>
       </RoleModalShell>

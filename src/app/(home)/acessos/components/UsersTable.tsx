@@ -1,6 +1,9 @@
 import { memo } from "react";
+import clsx from "clsx";
 import {
+   Badge,
    Button,
+   Select,
    Table,
    TableBody,
    TableCell,
@@ -15,18 +18,24 @@ import {
    FaMagnifyingGlass,
    FaRegTrashCan,
    FaUserPen,
+   FaUserSlash,
    FaUsers,
 } from "react-icons/fa6";
 import { HiRefresh } from "react-icons/hi";
 import type { UserWithRole } from "services/routes/security/roles";
 import type { Tenant } from "services/routes/tenants";
+import { useAbaixoDe } from "@/hooks/useAbaixoDe";
 import { normalizeOrgTheme } from "@/lib/orgTheme";
+import type { RoleFilterOption } from "../hooks/useUserRoleFilter";
 import { RoleBadge } from "./RoleBadge";
 import { ScopeBadge } from "./ScopeBadge";
 
 interface UsersTableProps {
    filteredUsers: UserWithRole[];
    filterName: string;
+   /** Perfil filtrado (id) e as opções presentes na lista, com contagem */
+   roleFilter: number | null;
+   roleOptions: RoleFilterOption[];
    currentUserId: number | null;
    isUpdating: boolean;
    /** Catálogo de perfis indisponível: o modal de edição abriria sem opções */
@@ -35,46 +44,80 @@ interface UsersTableProps {
    /** "Logar como" é utilitário de dev — só aparece fora de produção. */
    showDevLogin: boolean;
    onFilterChange: (value: string) => void;
+   onRoleFilterChange: (value: number | null) => void;
+   /** Limpa busca e perfil de uma vez */
+   onClearFilters: () => void;
    onRefresh: () => void;
    onEditRole: (ur: UserWithRole) => void;
    onDevLogin: (userId: number) => void;
-   onDeleteRole: (
-      userId: number,
-      organizacaoId: string | null,
-      roleId: number,
-      userName: string
-   ) => void;
+   onDeleteRole: (ur: UserWithRole) => void;
 }
+
+/** A seta do select é background a 12px da direita: o `p-2.5` do tamanho md
+ *  apaga o `pr-10` da base (twMerge), então o padding direito volta aqui. */
+export const SELECT_THEME = {
+   field: { select: { sizes: { md: "py-2.5 pl-2.5 pr-7 text-sm" } } },
+};
 
 export const UsersTable = memo(function UsersTable({
    filteredUsers,
    filterName,
+   roleFilter,
+   roleOptions,
    currentUserId,
    isUpdating,
    editDisabled = false,
    tenants,
    showDevLogin,
    onFilterChange,
+   onRoleFilterChange,
+   onClearFilters,
    onRefresh,
    onEditRole,
    onDevLogin,
    onDeleteRole,
 }: UsersTableProps) {
+   const mobile = useAbaixoDe("sm");
    const tenantById = new Map(tenants.map((t) => [t.organizacao_id, t]));
+   const hasFilter = filterName.trim() !== "" || roleFilter !== null;
 
    return (
       <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-sm">
-         {/* Toolbar: busca + atualizar */}
+         {/* Toolbar: busca + perfil + atualizar. Uma linha só no mobile: a busca
+             cede (flex-1 min-w-0), o select tem largura fixa e estreita (o
+             texto da opção trunca no select nativo) e o botão não encolhe */}
          <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 p-4">
             <TextInput
                icon={FaMagnifyingGlass}
-               className="flex-1"
+               className="min-w-0 flex-1"
                value={filterName}
                onChange={(e) => onFilterChange(e.target.value)}
-               placeholder="Buscar por nome, posto ou perfil..."
+               aria-label="Buscar por nome, posto ou perfil"
+               placeholder={
+                  mobile ? "Buscar…" : "Buscar por nome, posto ou perfil..."
+               }
             />
+            <Select
+               className="w-[112px] shrink-0 sm:w-[200px]"
+               aria-label="Filtrar por perfil"
+               theme={SELECT_THEME}
+               value={roleFilter ?? ""}
+               onChange={(e) =>
+                  onRoleFilterChange(
+                     e.target.value ? Number(e.target.value) : null
+                  )
+               }
+            >
+               <option value="">Todos</option>
+               {roleOptions.map((o) => (
+                  <option key={o.id} value={o.id}>
+                     {o.name.toUpperCase()} ({o.count})
+                  </option>
+               ))}
+            </Select>
             <Tooltip content="Atualizar lista">
                <Button
+                  className="shrink-0 px-3 sm:px-5"
                   color="light"
                   onClick={onRefresh}
                   disabled={isUpdating}
@@ -89,10 +132,16 @@ export const UsersTable = memo(function UsersTable({
             <Table hoverable>
                <TableHead>
                   <TableRow>
-                     <TableHeadCell>Usuário</TableHeadCell>
-                     <TableHeadCell>Perfil</TableHeadCell>
-                     <TableHeadCell>Escopo</TableHeadCell>
-                     <TableHeadCell className="text-center">
+                     <TableHeadCell className="px-2 sm:px-6">
+                        Usuário
+                     </TableHeadCell>
+                     <TableHeadCell className="px-2 sm:px-6">
+                        Perfil
+                     </TableHeadCell>
+                     <TableHeadCell className="hidden px-6 sm:table-cell">
+                        Escopo
+                     </TableHeadCell>
+                     <TableHeadCell className="px-2 text-center sm:px-6">
                         Ações
                      </TableHeadCell>
                   </TableRow>
@@ -104,15 +153,15 @@ export const UsersTable = memo(function UsersTable({
                            <div className="flex flex-col items-center gap-2">
                               <FaUsers className="text-5xl text-gray-300" />
                               <p className="font-medium text-gray-600">
-                                 {filterName
-                                    ? "Nenhum usuário encontrado"
-                                    : "Nenhum usuário cadastrado"}
+                                 {hasFilter
+                                    ? "Nenhum vínculo encontrado"
+                                    : "Nenhum vínculo cadastrado"}
                               </p>
-                              {filterName && (
+                              {hasFilter && (
                                  <Button
                                     size="xs"
                                     color="light"
-                                    onClick={() => onFilterChange("")}
+                                    onClick={onClearFilters}
                                  >
                                     Limpar filtro
                                  </Button>
@@ -132,20 +181,55 @@ export const UsersTable = memo(function UsersTable({
                               key={`${ur.user.id}-${ur.organizacao_id ?? "sys"}`}
                               className="bg-white hover:bg-gray-50"
                            >
-                              <TableCell className="font-medium">
-                                 <div className="flex items-center gap-3">
-                                    <div className="bg-primary-600 flex size-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white uppercase shadow">
+                              <TableCell className="px-2 font-medium sm:px-6">
+                                 <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                                    <div className="bg-primary-600 flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white uppercase shadow sm:size-10">
                                        {ur.user.p_g}
                                     </div>
-                                    <span className="text-gray-900 uppercase">
+                                    <span
+                                       className={clsx(
+                                          "min-w-0 truncate text-gray-900 uppercase sm:max-w-none",
+                                          // Inativo: o ícone (12px) + o gap (7px)
+                                          // saem do orçamento do nome, para a
+                                          // coluna não passar da largura atual
+                                          ur.user.active
+                                             ? "max-w-[80px]"
+                                             : "max-w-[60px]"
+                                       )}
+                                       title={ur.user.nome_guerra}
+                                    >
                                        {ur.user.nome_guerra}
                                     </span>
+                                    {!ur.user.active && (
+                                       <>
+                                          {/* Mobile: só o ícone; o texto vai
+                                              para o leitor de tela */}
+                                          <span
+                                             className="inline-flex shrink-0 sm:hidden"
+                                             title="Usuário inativo"
+                                          >
+                                             <FaUserSlash
+                                                aria-hidden
+                                                className="size-3.5 text-amber-600"
+                                             />
+                                             <span className="sr-only">
+                                                (inativo)
+                                             </span>
+                                          </span>
+                                          <Badge
+                                             color="warning"
+                                             className="hidden shrink-0 sm:inline-flex"
+                                          >
+                                             Inativo
+                                          </Badge>
+                                       </>
+                                    )}
                                  </div>
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="px-2 sm:px-6">
                                  <RoleBadge roleName={ur.role.name} />
                               </TableCell>
-                              <TableCell>
+                              <TableCell className="hidden px-6 sm:table-cell">
                                  <ScopeBadge
                                     sigla={
                                        ur.organizacao_id
@@ -160,15 +244,30 @@ export const UsersTable = memo(function UsersTable({
                                     }
                                  />
                               </TableCell>
-                              <TableCell>
-                                 <div className="flex justify-center gap-2">
-                                    <Tooltip content="Editar perfil">
+                              <TableCell className="px-2 sm:px-6">
+                                 <div className="flex justify-center gap-1 sm:gap-2">
+                                    <Tooltip
+                                       content={
+                                          isSelf
+                                             ? "Você não pode alterar o próprio perfil"
+                                             : "Editar perfil"
+                                       }
+                                    >
                                        <Button
                                           size="xs"
+                                          className="px-2 sm:px-3"
                                           color="light"
                                           onClick={() => onEditRole(ur)}
-                                          disabled={isUpdating || editDisabled}
-                                          aria-label={`Editar perfil de ${userName}`}
+                                          disabled={
+                                             isUpdating ||
+                                             editDisabled ||
+                                             isSelf
+                                          }
+                                          aria-label={
+                                             isSelf
+                                                ? "Você não pode alterar o próprio perfil"
+                                                : `Editar perfil de ${userName}`
+                                          }
                                        >
                                           <FaUserPen className="size-4 text-gray-600" />
                                        </Button>
@@ -177,6 +276,7 @@ export const UsersTable = memo(function UsersTable({
                                        <Tooltip content="Login como usuário (dev)">
                                           <Button
                                              size="xs"
+                                             className="px-2 sm:px-3"
                                              color="light"
                                              onClick={() =>
                                                 onDevLogin(ur.user.id)
@@ -196,17 +296,15 @@ export const UsersTable = memo(function UsersTable({
                                     >
                                        <Button
                                           size="xs"
+                                          className="px-2 sm:px-3"
                                           color="light"
                                           disabled={isSelf}
-                                          onClick={() =>
-                                             onDeleteRole(
-                                                ur.user.id,
-                                                ur.organizacao_id,
-                                                ur.role.id,
-                                                userName
-                                             )
+                                          onClick={() => onDeleteRole(ur)}
+                                          aria-label={
+                                             isSelf
+                                                ? "Você não pode remover o próprio acesso"
+                                                : `Remover perfil de ${userName}`
                                           }
-                                          aria-label={`Remover perfil de ${userName}`}
                                        >
                                           <FaRegTrashCan className="size-4 text-red-600" />
                                        </Button>

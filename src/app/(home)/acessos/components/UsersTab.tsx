@@ -10,31 +10,44 @@ import { useDeleteUserRole } from "@/hooks/queries/useRoles";
 import { UsersTable } from "./UsersTable";
 import UserEditRole from "./UserEditRole";
 import type { DeletingUserRole, EditingRole } from "../helpers/types";
-import { useUserRoleFilter } from "../hooks/useUserRoleFilter";
 import { useDevLogin } from "../hooks/useDevLogin";
+import type { RoleFilterOption } from "../hooks/useUserRoleFilter";
+import { orgLabel } from "../helpers/tenantLabel";
 
 interface UsersTabProps {
-   userRoles: UserWithRole[];
    roles: RoleDetail[];
    tenants: Tenant[];
    isFetching: boolean;
+   /** Filtro de busca (estado no pai: o masthead mostra a contagem filtrada) */
+   filterName: string;
+   setFilterName: (value: string) => void;
+   /** Filtro por perfil (id) e as opções presentes na lista, com contagem */
+   roleFilter: number | null;
+   setRoleFilter: (value: number | null) => void;
+   roleOptions: RoleFilterOption[];
+   onClearFilters: () => void;
+   filteredUsers: UserWithRole[];
    /** Perfis indisponíveis (carregando ou falhou): trava a edição */
    editDisabled?: boolean;
    onRefresh: () => void;
 }
 
 export const UsersTab = memo(function UsersTab({
-   userRoles,
    roles,
    tenants,
    isFetching,
+   filterName,
+   setFilterName,
+   roleFilter,
+   setRoleFilter,
+   roleOptions,
+   onClearFilters,
+   filteredUsers,
    editDisabled = false,
    onRefresh,
 }: UsersTabProps) {
    const { push } = useToast();
    const { userId: currentUserId } = useAuth();
-   const { filterName, setFilterName, filteredUsers } =
-      useUserRoleFilter(userRoles);
 
    const [showEditModal, setShowEditModal] = useState(false);
    const [editingRole, setEditingRole] = useState<EditingRole | null>(null);
@@ -51,20 +64,31 @@ export const UsersTab = memo(function UsersTab({
 
    const onEditRole = useCallback(
       (ur: UserWithRole) => {
-         const orgLabel =
-            ur.organizacao_id === null
-               ? "Sistema"
-               : (tenants.find((t) => t.organizacao_id === ur.organizacao_id)
-                    ?.organizacao.sigla ?? ur.organizacao_id);
+         const label = orgLabel(ur.organizacao_id, tenants);
 
          setEditingRole({
             userId: ur.user.id,
             userLabel: `${ur.user.p_g} ${ur.user.nome_guerra}`,
             organizacaoId: ur.organizacao_id,
-            orgLabel,
+            orgLabel: label,
             currentRoleId: ur.role.id,
          });
          setShowEditModal(true);
+      },
+      [tenants]
+   );
+
+   const onDeleteRole = useCallback(
+      (ur: UserWithRole) => {
+         setDeletingUserRole({
+            userId: ur.user.id,
+            organizacaoId: ur.organizacao_id,
+            roleId: ur.role.id,
+            userName: `${ur.user.p_g} ${ur.user.nome_guerra}`,
+            roleName: ur.role.name,
+            orgLabel: orgLabel(ur.organizacao_id, tenants),
+         });
+         setShowDelModal(true);
       },
       [tenants]
    );
@@ -105,9 +129,21 @@ export const UsersTab = memo(function UsersTab({
             show={showDelModal}
             title="Remover perfil?"
             description={
-               deletingUserRole
-                  ? `Tem certeza que deseja remover o perfil de ${deletingUserRole.userName.toUpperCase()}?`
-                  : ""
+               deletingUserRole ? (
+                  <>
+                     Remover o perfil{" "}
+                     <strong className="uppercase">
+                        {deletingUserRole.roleName}
+                     </strong>{" "}
+                     de{" "}
+                     <strong className="uppercase">
+                        {deletingUserRole.userName}
+                     </strong>{" "}
+                     em <strong>{deletingUserRole.orgLabel}</strong>?
+                  </>
+               ) : (
+                  ""
+               )
             }
             isLoading={deleteMutation.isPending}
             onClose={() => setShowDelModal(false)}
@@ -136,24 +172,20 @@ export const UsersTab = memo(function UsersTab({
             <UsersTable
                filteredUsers={filteredUsers}
                filterName={filterName}
+               roleFilter={roleFilter}
+               roleOptions={roleOptions}
                currentUserId={currentUserId}
                isUpdating={isFetching}
                editDisabled={editDisabled}
                tenants={tenants}
                showDevLogin={isDev}
                onFilterChange={setFilterName}
+               onRoleFilterChange={setRoleFilter}
+               onClearFilters={onClearFilters}
                onRefresh={onRefresh}
                onEditRole={onEditRole}
                onDevLogin={devLogin.requestLogin}
-               onDeleteRole={(userId, organizacaoId, roleId, userName) => {
-                  setDeletingUserRole({
-                     userId,
-                     organizacaoId,
-                     roleId,
-                     userName,
-                  });
-                  setShowDelModal(true);
-               }}
+               onDeleteRole={onDeleteRole}
             />
          </div>
       </>
