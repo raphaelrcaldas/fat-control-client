@@ -98,6 +98,35 @@ export async function getTrips(
    };
 }
 
+/**
+ * Todos os tripulantes que atendem aos filtros, respeitando o teto de
+ * `per_page = 100` do backend (acima disso ele responde 422). Para seleções
+ * que não podem esconder ninguém, como a matrícula do PAOP.
+ */
+export async function getAllTrips(
+   params: Omit<GetTripsParams, "page" | "per_page">,
+   signal?: AbortSignal
+): Promise<CrewMember[]> {
+   const PER_PAGE = 100;
+   const firstPage = await getTrips(
+      { ...params, page: 1, per_page: PER_PAGE },
+      signal
+   );
+   // `Map` por `id`: um cadastro entre a página 1 e a 2 desloca um item de
+   // uma página para a outra e ele viria duplicado.
+   const byId = new Map(firstPage.items.map((item) => [item.id, item]));
+
+   for (let page = 2; page <= firstPage.pages; page += 1) {
+      const nextPage = await getTrips(
+         { ...params, page, per_page: PER_PAGE },
+         signal
+      );
+      nextPage.items.forEach((item) => byId.set(item.id, item));
+   }
+
+   return [...byId.values()];
+}
+
 export async function getTripUserIds(): Promise<number[]> {
    const response = await request("GET", tripRoute + "user-ids");
    const json = await readApiData<{ data: number[] }>(response);

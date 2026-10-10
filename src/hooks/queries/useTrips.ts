@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import {
    getTrips,
+   getAllTrips,
    getTripUserIds,
    addTrip,
    updateTrip,
@@ -29,6 +30,9 @@ export const tripKeys = {
    all: ["trips"] as const,
    lists: () => [...tripKeys.all, "list"] as const,
    list: (filters?: GetTripsParams) => [...tripKeys.lists(), filters] as const,
+   // Sob `lists()`: quem invalida as listagens também invalida esta.
+   allList: (filters?: GetTripsParams) =>
+      [...tripKeys.lists(), "all", filters] as const,
    userIds: () => [...tripKeys.all, "user-ids"] as const,
    details: () => [...tripKeys.all, "detail"] as const,
    detail: (id: number) => [...tripKeys.details(), id] as const,
@@ -55,6 +59,22 @@ export function useTrips(params?: GetTripsParams, enabled = true) {
    return useQuery({
       ...tripListOptions(params),
       placeholderData: keepPreviousData,
+      staleTime: 0,
+      enabled,
+   });
+}
+
+/**
+ * Todos os tripulantes que atendem aos filtros, sem paginação na tela.
+ * Para seleções que não podem esconder ninguém (matrícula do PAOP).
+ */
+export function useAllTrips(
+   params: Omit<GetTripsParams, "page" | "per_page">,
+   enabled = true
+) {
+   return useQuery({
+      queryKey: tripKeys.allList(params),
+      queryFn: ({ signal }) => getAllTrips(params, signal),
       staleTime: 0,
       enabled,
    });

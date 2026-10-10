@@ -13,7 +13,7 @@ import {
    TextInput,
 } from "flowbite-react";
 import { IoMdSearch } from "react-icons/io";
-import { useTrips } from "@/hooks/queries/useTrips";
+import { useAllTrips } from "@/hooks/queries/useTrips";
 import { useFuncoes } from "@/hooks/queries/useFuncoes";
 import type { PaopSubprogramaItem } from "services/routes/instrucao/paops";
 import { MatriculaListSkeleton } from "./MatriculaListSkeleton";
@@ -26,10 +26,6 @@ interface MatriculaModalProps {
    onSubmit: (tripIds: number[]) => void;
 }
 
-// A unidade inteira de uma função cabe numa página só; paginar aqui só
-// esconderia gente de quem está montando a turma.
-const TODOS = 200;
-
 export function MatriculaModal({
    show,
    item,
@@ -41,9 +37,10 @@ export function MatriculaModal({
    const func = item?.subprograma.func;
 
    // Mesmo recorte que o backend exige na matrícula: ativos da org, da
-   // função do subprograma.
-   const { data, isLoading, isError, isFetching, refetch } = useTrips(
-      { func: func ? [func] : [], active: true, per_page: TODOS },
+   // função do subprograma. Carrega todas as páginas: paginar aqui
+   // esconderia gente de quem está montando a turma.
+   const { data, isLoading, isError, isFetching, refetch } = useAllTrips(
+      { func: func ? [func] : [], active: true },
       show && !!func
    );
 
@@ -58,7 +55,7 @@ export function MatriculaModal({
 
    const elegiveis = useMemo(
       () =>
-         (data?.items ?? []).filter(
+         (data ?? []).filter(
             (t): t is typeof t & { id: number } => t.id !== undefined
          ),
       [data]
@@ -85,10 +82,6 @@ export function MatriculaModal({
       const ids = new Set(elegiveis.map((t) => t.id));
       return item.tripulantes.filter((t) => !ids.has(t.trip_id));
    }, [item, elegiveis, isLoading, isError]);
-
-   // O backend pagina; se a unidade tiver mais tripulantes numa função do que
-   // cabe na página, a lista silenciaria o excedente.
-   const truncado = (data?.total ?? 0) > elegiveis.length;
 
    function alternar(id: number) {
       setMarcados((atual) =>
@@ -118,13 +111,6 @@ export function MatriculaModal({
                   onChange={(e) => setBusca(e.target.value)}
                   sizing="sm"
                />
-
-               {truncado && (
-                  <p className="rounded border border-amber-300 bg-amber-50 p-2 text-xs text-amber-800">
-                     Mostrando {elegiveis.length} de {data?.total} tripulantes
-                     desta função. Use a busca para achar quem não aparece.
-                  </p>
-               )}
 
                {foraDoCriterio.length > 0 && (
                   <div className="space-y-1 rounded border border-amber-300 bg-amber-50 p-2">
