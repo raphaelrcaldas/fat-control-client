@@ -32,7 +32,7 @@ export default function LangCard({
       return (
          <div className="rounded bg-gray-50 px-3 py-2.5">
             <div className="text-xs font-medium text-gray-700">{lang}</div>
-            <div className="mt-0.5 text-[11px] text-gray-400">
+            <div className="mt-0.5 text-[11px] text-gray-500">
                Não cadastrado
             </div>
          </div>
@@ -76,7 +76,7 @@ export default function LangCard({
             ))}
          </div>
          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-gray-400">A1 → C2</span>
+            <span className="text-[11px] text-gray-500">A1 → C2</span>
             {validity && (
                <span className="text-[11px]" style={{ color: colors.text }}>
                   {formatDate(validity)} · {getDaysLabel(validity)}

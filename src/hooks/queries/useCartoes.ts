@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiError } from "services/Api";
 import {
    getCartoes,
    upsertCartao,
@@ -53,7 +54,10 @@ export function useUpsertCartao() {
       }) => {
          const result = await upsertCartao(trip_id, data);
          if (!result.ok) {
-            throw new Error(result.message || "Erro ao salvar cartão");
+            throw new ApiError(
+               result.message || "Erro ao salvar cartão",
+               result.errors
+            );
          }
          return result;
       },
@@ -70,7 +74,10 @@ export function useDeleteCartao() {
       mutationFn: async (trip_id: number) => {
          const result = await deleteCartao(trip_id);
          if (!result.ok) {
-            throw new Error(result.message || "Erro ao remover cartão");
+            throw new ApiError(
+               result.message || "Erro ao remover cartão",
+               result.errors
+            );
          }
          return result;
       },

@@ -8,6 +8,7 @@ interface LangFieldGroupProps {
    title: string;
    levelName: string;
    levelValue: string;
+   levelError?: string;
    validadeName: string;
    validadeValue: string;
    onChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement>;
@@ -17,10 +18,12 @@ export default function LangFieldGroup({
    title,
    levelName,
    levelValue,
+   levelError,
    validadeName,
    validadeValue,
    onChange,
 }: LangFieldGroupProps) {
+   const errorId = `${levelName}-error`;
    return (
       <div className="rounded border border-slate-200 bg-gray-50 p-4 shadow-sm">
          <SectionTitle>{title}</SectionTitle>
@@ -32,6 +35,9 @@ export default function LangFieldGroup({
                   value={levelValue}
                   onChange={onChange}
                   sizing="sm"
+                  color={levelError ? "failure" : undefined}
+                  aria-invalid={!!levelError}
+                  aria-describedby={levelError ? errorId : undefined}
                >
                   {NIVEL_OPTIONS.map((opt) => (
                      <option key={opt} value={opt}>
@@ -39,6 +45,11 @@ export default function LangFieldGroup({
                      </option>
                   ))}
                </Select>
+               {levelError && (
+                  <p id={errorId} className="text-sm text-red-600">
+                     {levelError}
+                  </p>
+               )}
             </Field>
             <Field id={validadeName} label="Validade">
                <TextInput

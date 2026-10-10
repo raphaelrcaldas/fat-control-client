@@ -16,7 +16,7 @@ export default function FieldRow({
       return (
          <div className="flex items-center justify-between border-b border-slate-100 py-1 last:border-0">
             <span className="text-xs text-gray-500">{label}</span>
-            <span className="text-xs font-normal text-gray-300">—</span>
+            <span className="text-xs font-normal text-gray-400">—</span>
          </div>
       );
    }
@@ -31,7 +31,7 @@ export default function FieldRow({
                style={{ backgroundColor: colors.dot, width: 7, height: 7 }}
             />
             <span className="font-mono text-sm">{formatDate(dateStr)}</span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-500">
                ({getDaysLabel(dateStr)})
             </span>
          </span>

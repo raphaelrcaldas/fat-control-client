@@ -35,7 +35,8 @@ export function getStatusColors(status: CartaoStatus): StatusColors {
          };
       case "empty":
          return {
-            text: "#6b7280",
+            // gray-600: o gray-500 sobre o fundo f3f4f6 dá 4,4:1 e reprova AA.
+            text: "#4b5563",
             badgeBg: "#f3f4f6",
             badgeBorder: "#d1d5db",
             dot: "#9ca3af",

@@ -3,13 +3,14 @@
 import clsx from "clsx";
 import { memo, useState, useCallback } from "react";
 import { Button } from "flowbite-react";
-import { HiChevronRight, HiPencil } from "react-icons/hi";
+import { HiChevronRight, HiPencil, HiPlus } from "react-icons/hi";
 import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
 import { PROVA_FIELDS, LANG_FIELDS } from "../cartoes.config";
 import { getCartaoStatus, getDaysLabel } from "../utils/cartaoStatus";
 import StatusBadge from "./StatusBadge";
 import FieldRow from "./FieldRow";
 import LangCard from "./LangCard";
+import { PermBased } from "../../../hooks/usePermBased";
 
 interface PilotCardProps {
    pilot: TripCartoesOut;
@@ -65,7 +66,9 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
       <div
          className={clsx(
             "rounded border bg-white px-3 py-2 transition-all",
-            isExpanded ? "border-red-300 shadow" : "border-slate-200 shadow-sm"
+            isExpanded
+               ? "border-primary-300 shadow"
+               : "border-slate-200 shadow-sm"
          )}
       >
          {/* Header */}
@@ -79,7 +82,7 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
          >
             <div className="flex items-center gap-3">
                {/* Avatar */}
-               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-[13px] font-medium text-red-600">
+               <div className="bg-primary-50 text-primary-700 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[13px] font-medium">
                   {pilot.p_g.toUpperCase()}
                </div>
 
@@ -118,7 +121,9 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
             className="grid transition-[grid-template-rows] duration-250 ease-in-out"
             style={{ gridTemplateRows: isExpanded ? "1fr" : "0fr" }}
          >
-            <div className="overflow-hidden">
+            {/* Recolhido, o corpo só fica sem altura: `inert` tira do Tab e
+                do leitor de tela os controles que continuam no DOM. */}
+            <div className="overflow-hidden" inert={!isExpanded}>
                <div className="mt-3.5 border-t border-slate-100 pt-3.5">
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                      {/* Left: Provas e validações */}
@@ -150,19 +155,28 @@ const PilotCard = memo(function PilotCard({ pilot, onEdit }: PilotCardProps) {
                               />
                            ))}
                         </div>
-                        <div className="mt-3 flex justify-end">
-                           <Button
-                              size="xs"
-                              color="light"
-                              onClick={(e) => {
-                                 e.stopPropagation();
-                                 onEdit(pilot);
-                              }}
-                           >
-                              <HiPencil className="mr-1.5 h-3.5 w-3.5" />
-                              Editar
-                           </Button>
-                        </div>
+                        <PermBased
+                           resource="instrucao.cartoes"
+                           requiredPerm={cartao ? "update" : "create"}
+                        >
+                           <div className="mt-3 flex justify-end">
+                              <Button
+                                 size="xs"
+                                 color="light"
+                                 onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEdit(pilot);
+                                 }}
+                              >
+                                 {cartao ? (
+                                    <HiPencil className="mr-1.5 h-3.5 w-3.5" />
+                                 ) : (
+                                    <HiPlus className="mr-1.5 h-3.5 w-3.5" />
+                                 )}
+                                 {cartao ? "Editar" : "Cadastrar"}
+                              </Button>
+                           </div>
+                        </PermBased>
                      </div>
                   </div>
                </div>

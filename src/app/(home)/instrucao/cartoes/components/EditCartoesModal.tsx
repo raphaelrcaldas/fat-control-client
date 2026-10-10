@@ -15,7 +15,7 @@ import { MdBadge } from "react-icons/md";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { TripCartoesOut } from "services/routes/instrucao/cartoes";
 import { useCartaoForm, type CartaoFormState } from "../hooks/useCartaoForm";
-import { PROVA_FIELDS } from "../cartoes.config";
+import { LANG_FIELDS, PROVA_FIELDS } from "../cartoes.config";
 import SectionTitle from "./SectionTitle";
 import Field from "./Field";
 import LangFieldGroup from "./LangFieldGroup";
@@ -34,6 +34,7 @@ export default function EditCartoesModal({
 }: EditCartoesModalProps) {
    const {
       formData,
+      errors,
       handleInput,
       handleSave,
       handleDelete,
@@ -62,7 +63,7 @@ export default function EditCartoesModal({
          <Modal show={show} onClose={handleClose} size="lg" dismissible>
             <ModalHeader>
                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-md bg-red-600">
+                  <div className="bg-primary-600 flex h-9 w-9 items-center justify-center rounded-md">
                      <MdBadge className="h-5 w-5 text-white" />
                   </div>
                   <div>
@@ -102,23 +103,18 @@ export default function EditCartoesModal({
                      </div>
                   </div>
 
-                  <LangFieldGroup
-                     title="Espanhol"
-                     levelName="hab_espanhol"
-                     levelValue={formData.hab_espanhol}
-                     validadeName="val_espanhol"
-                     validadeValue={formData.val_espanhol}
-                     onChange={handleInput}
-                  />
-
-                  <LangFieldGroup
-                     title="Inglês"
-                     levelName="hab_ingles"
-                     levelValue={formData.hab_ingles}
-                     validadeName="val_ingles"
-                     validadeValue={formData.val_ingles}
-                     onChange={handleInput}
-                  />
+                  {LANG_FIELDS.map((f) => (
+                     <LangFieldGroup
+                        key={f.key}
+                        title={f.lang}
+                        levelName={f.levelName}
+                        levelValue={formData[f.levelName]}
+                        levelError={errors[f.levelName]}
+                        validadeName={f.validadeName}
+                        validadeValue={formData[f.validadeName]}
+                        onChange={handleInput}
+                     />
+                  ))}
                </div>
             </ModalBody>
 
@@ -152,9 +148,9 @@ export default function EditCartoesModal({
                         requiredPerm={isEdit ? "update" : "create"}
                      >
                         <Button
-                           color="red"
+                           color="primary"
                            onClick={handleSave}
-                           disabled={isSaving}
+                           disabled={busy}
                            aria-busy={isSaving}
                         >
                            {isSaving ? (
@@ -164,7 +160,7 @@ export default function EditCartoesModal({
                                     color="white"
                                     className="mr-2"
                                  />
-                                 Salvando...
+                                 Salvando…
                               </>
                            ) : isEdit ? (
                               "Atualizar"

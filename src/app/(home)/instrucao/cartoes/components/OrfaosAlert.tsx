@@ -62,6 +62,11 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
       });
    };
 
+   // Esc, clique fora e o X não fecham com a exclusão em andamento.
+   const handleClose = () => {
+      if (!isDeleting) onClose();
+   };
+
    const handleCleanup = async () => {
       const ids = Array.from(selectedIds);
       if (ids.length === 0) return;
@@ -88,12 +93,17 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
    };
 
    return (
-      <Modal show={show} onClose={onClose} size="2xl" dismissible>
+      <Modal
+         show={show}
+         onClose={handleClose}
+         size="2xl"
+         dismissible={!isDeleting}
+      >
          <ModalHeader>Limpar cartões de militares inativos</ModalHeader>
          <ModalBody>
             <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                Selecione os militares. A exclusão remove o cartão de instrução
-               (idiomas/CVI) de militares atualmente inativos.
+               (provas e idiomas) de militares atualmente inativos.
             </p>
             <div className="overflow-x-auto rounded border border-slate-200 shadow">
                <Table hoverable>
@@ -147,7 +157,11 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
                   {selectedIds.size} de {itens.length} selecionado(s)
                </span>
                <div className="flex gap-2">
-                  <Button color="gray" onClick={onClose} disabled={isDeleting}>
+                  <Button
+                     color="gray"
+                     onClick={handleClose}
+                     disabled={isDeleting}
+                  >
                      Cancelar
                   </Button>
                   <Button
@@ -161,7 +175,7 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
                      ) : (
                         <HiTrash className="mr-2 h-4 w-4" />
                      )}
-                     {isDeleting ? "Limpando..." : "Limpar selecionados"}
+                     {isDeleting ? "Limpando…" : "Limpar selecionados"}
                   </Button>
                </div>
             </div>
@@ -171,8 +185,36 @@ function CleanupModal({ show, onClose, itens }: CleanupModalProps) {
 }
 
 export default function OrfaosAlert() {
-   const { data: orfaos, isLoading } = useCartoesOrfaos();
+   const {
+      data: orfaos,
+      isLoading,
+      isError,
+      isFetching,
+      refetch,
+   } = useCartoesOrfaos();
    const [showModal, setShowModal] = useState(false);
+
+   // Falha sem dado em cache: avisa em vez de sumir — "nenhum órfão" e
+   // "não deu para verificar" são coisas diferentes.
+   if (isError && !orfaos) {
+      return (
+         <Alert color="failure" icon={HiExclamation}>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+               <span>
+                  Não foi possível verificar os cartões de militares inativos.
+               </span>
+               <Button
+                  color="light"
+                  size="xs"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+               >
+                  Tentar novamente
+               </Button>
+            </div>
+         </Alert>
+      );
+   }
 
    if (isLoading || !orfaos || orfaos.total_registros === 0) {
       return null;
