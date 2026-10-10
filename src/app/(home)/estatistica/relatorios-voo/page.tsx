@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import clsx from "clsx";
 import { Badge, Button, Drawer } from "flowbite-react";
 import {
+   HiExclamation,
    HiOutlineRefresh,
    HiDocumentText,
    HiUpload,
@@ -97,6 +98,8 @@ function RelatoriosVooConteudo() {
          anv,
       });
    const grupos = useMemo(() => agruparPorDia(data?.itens ?? []), [data]);
+   // Com aeronave já filtrada, sugerir "filtre por aeronave" não ajuda.
+   const avisoCorte = `Mostrando os ${data?.itens.length ?? 0} relatórios mais recentes do período. Reduza o período${anv ? "" : " ou filtre por aeronave"} para ver os demais.`;
    const total = useMemo(
       () =>
          Object.values(data?.contagem_por_anv ?? {}).reduce((a, b) => a + b, 0),
@@ -309,26 +312,45 @@ function RelatoriosVooConteudo() {
                )}
             </div>
          ) : (
-            <div
-               className={clsx(
-                  "grid min-h-0 flex-1 gap-2 transition-opacity",
-                  "lg:grid-cols-[minmax(320px,380px)_minmax(0,1fr)] 2xl:grid-cols-[500px_minmax(0,1fr)]",
-                  isFetching && "opacity-50"
+            <>
+               {data?.truncado && (
+                  // Celular: versão curta numa linha (a frase inteira no
+                  // `title`); a partir de `sm` cabe a completa. Sem
+                  // `role="status"`: montada junto com o texto, a região
+                  // viva não seria anunciada — é aviso estático da lista.
+                  <p className="flex items-center gap-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                     <HiExclamation className="size-4 shrink-0" aria-hidden />
+                     <span
+                        className="min-w-0 truncate sm:hidden"
+                        title={avisoCorte}
+                     >
+                        Só os {data.itens.length} mais recentes — reduza o
+                        período
+                     </span>
+                     <span className="hidden sm:inline">{avisoCorte}</span>
+                  </p>
                )}
-            >
-               <RelatoriosLista
-                  grupos={grupos}
-                  selecionado={compacto ? sel : (selecionado?.id ?? null)}
-                  onSelecionar={selecionarNaLista}
-               />
-               {selecionado && !compacto && (
-                  <RelatorioPainel
-                     relatorio={selecionado}
-                     onExcluido={onExcluido}
-                     onConfirmacaoChange={setConfirmacaoAberta}
+               <div
+                  className={clsx(
+                     "grid min-h-0 flex-1 gap-2 transition-opacity",
+                     "lg:grid-cols-[minmax(320px,380px)_minmax(0,1fr)] 2xl:grid-cols-[500px_minmax(0,1fr)]",
+                     isFetching && "opacity-50"
+                  )}
+               >
+                  <RelatoriosLista
+                     grupos={grupos}
+                     selecionado={compacto ? sel : (selecionado?.id ?? null)}
+                     onSelecionar={selecionarNaLista}
                   />
-               )}
-            </div>
+                  {selecionado && !compacto && (
+                     <RelatorioPainel
+                        relatorio={selecionado}
+                        onExcluido={onExcluido}
+                        onConfirmacaoChange={setConfirmacaoAberta}
+                     />
+                  )}
+               </div>
+            </>
          )}
 
          {portalTarget &&

@@ -31,6 +31,10 @@ export type RelatorioVoo = z.infer<typeof relatorioVooSchema>;
 export const relatoriosVooPeriodoSchema = z.object({
    itens: z.array(relatorioVooSchema),
    contagem_por_anv: z.record(z.string(), z.number()),
+   // Lista cortada no teto do backend (500, os mais recentes). `default`:
+   // o client pode subir antes da api — sem o campo, o parse derrubaria a
+   // tela inteira; ausente significa "sem corte", como era.
+   truncado: z.boolean().default(false),
 });
 export type RelatoriosVooPeriodo = z.infer<typeof relatoriosVooPeriodoSchema>;
 
