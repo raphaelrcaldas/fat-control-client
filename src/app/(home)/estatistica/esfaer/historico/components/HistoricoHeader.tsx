@@ -26,7 +26,7 @@ export function HistoricoHeader({
             className="bg-primary-600 absolute top-0 left-0 h-full w-1"
          />
 
-         <div className="relative flex flex-wrap items-center justify-between gap-4">
+         <div className="relative flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-4">
                <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                   <TbChartHistogram className="h-6 w-6" />
@@ -39,10 +39,16 @@ export function HistoricoHeader({
                      <TbArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
                      Esforço Aéreo
                   </Link>
-                  <h1 className="text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                  <h1
+                     title="Histórico de Esforço Aéreo"
+                     className="truncate text-2xl leading-none font-extrabold tracking-tight text-slate-900 sm:text-[28px]"
+                  >
                      Histórico de Esforço Aéreo
                   </h1>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p
+                     className="mt-1 truncate text-sm text-gray-500"
+                     title="Evolução das horas alocadas ao longo do ano"
+                  >
                      Evolução das horas alocadas ao longo do ano
                   </p>
                </div>
@@ -51,7 +57,7 @@ export function HistoricoHeader({
             <div className="flex items-center gap-2">
                <Label
                   htmlFor="anoRef"
-                  className="font-mono text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase"
+                  className="sr-only font-mono text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase sm:not-sr-only"
                >
                   Ano
                </Label>

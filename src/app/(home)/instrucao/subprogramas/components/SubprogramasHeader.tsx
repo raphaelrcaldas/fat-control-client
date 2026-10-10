@@ -20,7 +20,7 @@ export function SubprogramasHeader({
             className="bg-primary-600 absolute top-0 left-0 h-full w-1"
          />
 
-         <div className="relative flex flex-wrap items-center justify-between gap-4">
+         <div className="relative flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-4">
                <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                   <FaBookOpen className="h-6 w-6" />
@@ -37,7 +37,7 @@ export function SubprogramasHeader({
 
             <div className="flex items-center gap-3">
                {count !== undefined && (
-                  <Badge color="gray" size="lg">
+                  <Badge color="gray" size="lg" className="hidden sm:flex">
                      {count} {count === 1 ? "subprograma" : "subprogramas"}
                   </Badge>
                )}
@@ -50,8 +50,10 @@ export function SubprogramasHeader({
                      onClick={onCreate}
                      className="font-semibold whitespace-nowrap"
                   >
-                     <FaPlus className="mr-2 h-4 w-4" />
-                     Novo subprograma
+                     <FaPlus className="h-4 w-4 sm:mr-2" />
+                     <span className="sr-only sm:not-sr-only">
+                        Novo subprograma
+                     </span>
                   </Button>
                </PermBased>
             </div>

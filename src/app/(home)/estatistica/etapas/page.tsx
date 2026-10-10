@@ -63,7 +63,7 @@ export default function EtapasPage() {
                 de filtros abre dentro do MESMO card, abaixo dela — por isso a
                 moldura (borda/sombra/espinha) sobe para o card externo e só o
                 padding fica na linha. */}
-            <header className="relative flex flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6 sm:py-5">
+            <header className="relative flex items-center justify-between gap-4 px-5 py-4 sm:px-6 sm:py-5">
                <div className="flex min-w-0 items-center gap-4">
                   <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                      <CiPaperplane className="h-6 w-6" />

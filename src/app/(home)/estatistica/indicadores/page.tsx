@@ -37,7 +37,7 @@ export default function IndicadoresPage() {
                className="bg-primary-600 absolute top-0 left-0 h-full w-1"
             />
 
-            <div className="relative flex flex-wrap items-center justify-between gap-4">
+            <div className="relative flex items-center justify-between gap-4">
                <div className="flex min-w-0 items-center gap-4">
                   <div className="bg-primary-50 text-primary-600 ring-primary-100 grid h-12 w-12 shrink-0 place-items-center rounded-md ring-1 ring-inset">
                      <MdInsights className="h-6 w-6" />
@@ -52,8 +52,10 @@ export default function IndicadoresPage() {
                   </div>
                </div>
 
+               {/* No celular só o Ano: o Projeto sai para o header caber numa
+                   linha (ver `docs/ai/rules/frontend.md`). */}
                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <div className="flex items-center gap-2">
+                  <div className="hidden items-center gap-2 sm:flex">
                      <Label
                         htmlFor="projeto"
                         className="font-mono text-[11px] font-bold tracking-wider text-slate-500 uppercase"
@@ -78,7 +80,7 @@ export default function IndicadoresPage() {
                   <div className="flex items-center gap-2">
                      <Label
                         htmlFor="anoRef"
-                        className="font-mono text-[11px] font-bold tracking-wider text-slate-500 uppercase"
+                        className="sr-only font-mono text-[11px] font-bold tracking-wider text-slate-500 uppercase sm:not-sr-only"
                      >
                         Ano
                      </Label>
