@@ -91,7 +91,7 @@ export function OrdemDetailSkeleton() {
 
                {/* Tripulação: 6 slots */}
                <SectionSkeleton>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-3">
                      {Array.from({ length: 6 }).map((_, i) => (
                         <div
                            key={i}

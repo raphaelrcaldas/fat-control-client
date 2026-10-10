@@ -47,8 +47,11 @@ export const OrdemTripulacao = memo(function OrdemTripulacao({
       [tripulacao, funcoes]
    );
 
+   // `auto-fit`, não colunas por breakpoint: na leitura as funções vazias
+   // somem, então o número de cards varia (4, 5, 6…) e uma grade fixa de 3
+   // deixava buraco. Os cards preenchem a linha e só quebram sem 170px.
    return (
-      <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] items-start gap-3">
          {funcoes.map((funcao) => {
             const errorKey = REQUIRED_FUNCOES[funcao];
             const isRequired = errorKey !== undefined;
