@@ -50,7 +50,7 @@ export const createDefaultOrdem = (): Partial<OrdemMissaoOut> => ({
    id: 0,
    doc_ref: "",
    matricula_anv: "",
-   projeto: "kc-390",
+   projeto: "KC-390",
    tipo: "",
    status: "rascunho",
    esf_aer: 0,
