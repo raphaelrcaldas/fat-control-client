@@ -79,7 +79,9 @@ export function LogsFilters({
                   aria-label={`Filtros: ação ${actionLabel}${
                      periodo ? ", com período" : ""
                   }`}
-                  className="shrink-0 lg:hidden"
+                  // `self-stretch h-auto`: altura da busca (linha `items-center`;
+                  // o `h-10` do Button md deixava 1,6px mais baixo).
+                  className="h-auto shrink-0 self-stretch lg:hidden"
                >
                   <HiFilter className="size-4 shrink-0" />
                   <span className="mx-2 max-w-24 truncate">{actionShort}</span>

@@ -117,9 +117,11 @@ export function TripFilters({
                      disabled={disabled}
                   />
                </div>
+               {/* `h-auto`: estica até a altura da busca (o `h-10` do Button md
+                   deixava 1,6px mais baixo — ver frontend-armadilhas.md). */}
                <Button
                   color="light"
-                  className="shrink-0 md:hidden"
+                  className="h-auto shrink-0 md:hidden"
                   onClick={() => setFiltersOpen((open) => !open)}
                   disabled={disabled}
                   aria-expanded={filtersOpen}
