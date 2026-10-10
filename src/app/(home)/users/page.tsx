@@ -174,9 +174,12 @@ export default function UsersPage() {
                         sizing="md"
                      />
                   </div>
+                  {/* `h-auto`: estica até a altura da busca. O `h-10` do Button
+                      md conta a borda por dentro e o TextInput md por fora —
+                      lado a lado, o botão ficava 2px mais baixo. */}
                   <Button
                      color="light"
-                     className="shrink-0 lg:hidden"
+                     className="h-auto shrink-0 lg:hidden"
                      onClick={() => setFiltersOpen((open) => !open)}
                      aria-expanded={filtersOpen}
                      aria-controls="users-filters"
