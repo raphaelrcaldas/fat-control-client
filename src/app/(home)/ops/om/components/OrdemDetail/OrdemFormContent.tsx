@@ -26,7 +26,7 @@ import { useOrdemExports } from "./hooks/useOrdemExports";
 import { LabelPicker } from "../LabelPicker";
 import { LabelManager } from "../LabelManager";
 import { useEtiquetas } from "@/hooks/queries";
-import { useAeronaves } from "@/hooks/queries/useAeronaves";
+import { useAllAeronaves } from "@/hooks/queries/useAeronaves";
 import { formatDateForDisplay } from "utils/dateHandler";
 import { useAuth } from "@/app/context/auth";
 import { useToast } from "@/app/context/toast";
@@ -108,11 +108,8 @@ export function OrdemFormContent({
       data: aeronaveData,
       isLoading: aeronavesCarregando,
       isError: aeronavesErro,
-   } = useAeronaves({
-      per_page: 100,
-      is_sim: false,
-   });
-   const aeronaves = aeronaveData?.items ?? [];
+   } = useAllAeronaves({ is_sim: false });
+   const aeronaves = aeronaveData ?? [];
 
    const [isLabelManagerOpen, setIsLabelManagerOpen] = useState(false);
    const [isEtapaModalOpen, setIsEtapaModalOpen] = useState(false);

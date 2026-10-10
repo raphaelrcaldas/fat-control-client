@@ -11,7 +11,7 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
 import { useEtapas } from "@/hooks/queries";
-import { useAeronaves } from "@/hooks/queries/useAeronaves";
+import { useAllAeronaves } from "@/hooks/queries/useAeronaves";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
 import { dateToIso, todayIso } from "@/../utils/dateHandler";
@@ -262,13 +262,10 @@ export function useEtapasFilters() {
    useSyncParamToState(urlTrip, debouncedTrip, filterTrip, setFilterTrip);
 
    // --- Aeronaves data ---
-   const { data: aeronaveData } = useAeronaves({
-      per_page: 100,
-      is_sim: false,
-   });
+   const { data: aeronaveData } = useAllAeronaves({ is_sim: false });
    const aeronaveOptions = useMemo(
       () =>
-         (aeronaveData?.items ?? []).map((a) => ({
+         (aeronaveData ?? []).map((a) => ({
             value: a.matricula,
             label: a.matricula,
          })),

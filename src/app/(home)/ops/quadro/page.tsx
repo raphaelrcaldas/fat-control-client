@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { listOrdens } from "services/routes/om/ordens";
 import { ordemKeys } from "@/hooks/queries/useOrdens";
-import { useAeronaves } from "@/hooks/queries/useAeronaves";
+import { useAllAeronaves } from "@/hooks/queries/useAeronaves";
 import { useVisibleDays } from "./components/MissionList/hooks/useVisibleDays";
 import { useQuadroNavigation } from "./components/MissionList/hooks/useQuadroNavigation";
 import WeekCalendar from "./components/MissionList/WeekCalendar";
@@ -55,13 +55,10 @@ export default function QuadroOperacoes() {
       isLoading: aeronavesCarregando,
       isError: aeronavesErro,
       refetch: refetchAeronaves,
-   } = useAeronaves({
-      per_page: 100,
-      is_sim: false,
-   });
+   } = useAllAeronaves({ is_sim: false });
 
    const ordens = data?.items ?? [];
-   const todasAeronaves = aeronaveData?.items ?? [];
+   const todasAeronaves = aeronaveData ?? [];
 
    // O backend ordena a janela por decolagem, então o que sobra do corte
    // são as missões do fim do período — omiti-las caladamente faria o

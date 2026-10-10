@@ -8,7 +8,7 @@ import {
    useMissaoDraft,
    useMissaoDraftDispatch,
 } from "../context/MissaoDraftContext";
-import { useAeronaves } from "@/hooks/queries/useAeronaves";
+import { useAllAeronaves } from "@/hooks/queries/useAeronaves";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
 import { useTiposMissao } from "@/hooks/queries/useTiposMissao";
 import { Badge } from "flowbite-react";
@@ -40,15 +40,14 @@ export function EtapaContent({ localId, showErrors }: EtapaContentProps) {
          dispatch,
       });
 
-   const { data: aeronavesData, isLoading: loadingAnv } = useAeronaves({
-      per_page: 100,
+   const { data: aeronavesData, isLoading: loadingAnv } = useAllAeronaves({
       is_sim: false,
    });
    const { data: esfAerData, isLoading: loadingEsfAer } = useEsfAerList();
    const { data: tiposMissaoData, isLoading: loadingTiposMissao } =
       useTiposMissao();
 
-   const aeronavesList = aeronavesData?.items ?? [];
+   const aeronavesList = aeronavesData ?? [];
    const esfAerList = esfAerData ?? [];
    const tiposMissaoList = tiposMissaoData ?? [];
 

@@ -1,12 +1,6 @@
-import {
-   useQuery,
-   useMutation,
-   useQueryClient,
-   keepPreviousData,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "services/Api";
 import {
-   getAeronaves,
    getAllAeronaves,
    createAeronave,
    updateAeronave,
@@ -19,29 +13,12 @@ import {
 export const aeronaveKeys = {
    all: ["aeronaves"] as const,
    lists: () => [...aeronaveKeys.all, "list"] as const,
-   list: (filters?: GetAeronavesParams) =>
-      [...aeronaveKeys.lists(), filters] as const,
-   // Nasce sob o prefixo de aeronaveKeys.lists() (não de aeronaveKeys.list())
-   // de propósito: garante que a invalidação de aeronaveKeys.lists() nas
-   // mutations abaixo alcance também esta key, sem precisar tocar nelas. O
-   // literal "all" evita colisão com list(undefined) (== [...lists(), undefined]).
+   // Sob o prefixo de aeronaveKeys.lists(): a invalidação de lists() nas
+   // mutations abaixo alcança esta key.
    allList: (filters?: Omit<GetAeronavesParams, "page" | "per_page">) =>
       [...aeronaveKeys.lists(), "all", filters] as const,
    projetos: () => [...aeronaveKeys.all, "projetos"] as const,
 };
-
-export function useAeronaves(params?: GetAeronavesParams) {
-   return useQuery({
-      queryKey: aeronaveKeys.list(params),
-      queryFn: ({ signal }) => getAeronaves(params, signal),
-      placeholderData: keepPreviousData,
-      // Lista de aeronaves é dado de referência: raramente muda e
-      // quando muda (create/update/delete) as mutations abaixo
-      // invalidam aeronaveKeys.lists() explicitamente. Sem isso,
-      // toda página que monta o hook dispara um refetch.
-      staleTime: Infinity,
-   });
-}
 
 /**
  * Frota inteira (esgota a paginação — ver getAllAeronaves), para telas que
@@ -54,10 +31,13 @@ export function useAllAeronaves(
    return useQuery({
       queryKey: aeronaveKeys.allList(params),
       queryFn: ({ signal }) => getAllAeronaves(params, signal),
-      // Mesma política de useAeronaves: dado de referência, raramente muda;
-      // as mutations abaixo invalidam aeronaveKeys.lists(), prefixo de
-      // aeronaveKeys.allList(), então esta query é invalidada junto.
-      staleTime: Infinity,
+      // As mutations abaixo invalidam aeronaveKeys.lists(), prefixo de
+      // aeronaveKeys.allList(). Mas a situação da aeronave é global e outra
+      // org pode alterá-la: com `Infinity` um quadro aberto o dia todo nunca
+      // via a mudança. 5 min + refetch ao voltar para a aba (o global
+      // desliga o refetch por foco).
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: true,
    });
 }
 
