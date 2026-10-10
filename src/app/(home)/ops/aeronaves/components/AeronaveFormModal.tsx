@@ -59,6 +59,14 @@ const AERONAVE_ERROR_LABELS: ApiErrorLabels = {
    },
 };
 
+/**
+ * `obs` vazia ou só com espaços vale `null` — o backend normaliza igual. Usada
+ * no payload e no "mudou?", senão digitar só espaços conta como alteração.
+ */
+function normalizeObs(obs: string | null | undefined): string | null {
+   return obs?.trim() || null;
+}
+
 export function AeronaveFormModal({
    show,
    onClose,
@@ -103,19 +111,25 @@ export function AeronaveFormModal({
 
    const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
+   // Escape, clique fora e o X do cabeçalho não fecham com o envio em voo.
+   function handleClose() {
+      if (isSubmitting) return;
+      onClose();
+   }
+
    // No modo criação o submit fica sempre habilitado — o Zod já valida em
    // handleSubmit e popula `errors`, então travar o botão só escondia a
    // mensagem do que faltava preencher. No modo edição mantém o guard de
-   // "nada mudou" (intencional: não faz sentido salvar sem alteração).
+   // "nada mudou" (intencional: não faz sentido salvar sem alteração). O
+   // projeto não entra: é imutável depois do cadastro (o PUT não o aceita).
    const hasChanges = useMemo(() => {
       if (!isEditMode) return true;
       if (!editingAeronave) return false;
       return (
          formData.sit !== editingAeronave.sit ||
-         formData.obs !== (editingAeronave.obs || null) ||
+         normalizeObs(formData.obs) !== normalizeObs(editingAeronave.obs) ||
          formData.active !== editingAeronave.active ||
-         formData.is_sim !== editingAeronave.is_sim ||
-         formData.projeto !== editingAeronave.proj.id_projeto
+         formData.is_sim !== editingAeronave.is_sim
       );
    }, [formData, editingAeronave, isEditMode]);
 
@@ -204,14 +218,13 @@ export function AeronaveFormModal({
             const updateData: AeronaveUpdate = {};
             if (formData.sit !== editingAeronave!.sit)
                updateData.sit = formData.sit;
-            if (formData.obs !== (editingAeronave!.obs || null))
-               updateData.obs = formData.obs || null;
+            const obs = normalizeObs(formData.obs);
+            if (obs !== normalizeObs(editingAeronave!.obs))
+               updateData.obs = obs;
             if (formData.active !== editingAeronave!.active)
                updateData.active = formData.active;
             if (formData.is_sim !== editingAeronave!.is_sim)
                updateData.is_sim = formData.is_sim;
-            if (formData.projeto !== editingAeronave!.proj.id_projeto)
-               updateData.projeto = formData.projeto;
 
             const res = await updateMutation.mutateAsync({
                matricula: editingAeronave!.matricula,
@@ -230,7 +243,7 @@ export function AeronaveFormModal({
                matricula: formData.matricula,
                active: formData.active,
                sit: formData.sit,
-               obs: formData.obs || null,
+               obs: normalizeObs(formData.obs),
                is_sim: formData.is_sim,
                projeto: formData.projeto,
             });
@@ -284,7 +297,12 @@ export function AeronaveFormModal({
    }
 
    return (
-      <Modal show={show} size="lg" onClose={onClose} dismissible>
+      <Modal
+         show={show}
+         size="lg"
+         onClose={handleClose}
+         dismissible={!isSubmitting}
+      >
          <ModalHeader>
             {isEditMode
                ? `Editar Aeronave ${editingAeronave?.matricula}`
@@ -338,25 +356,42 @@ export function AeronaveFormModal({
                      value={formData.projeto}
                      onChange={(e) => updateField("projeto", e.target.value)}
                      color={errors.projeto ? "failure" : "gray"}
-                     disabled={projetosCarregando || projetosErro}
+                     disabled={isEditMode || projetosCarregando || projetosErro}
                   >
-                     <option value="">
-                        {projetosCarregando
-                           ? "Carregando projetos…"
-                           : projetosErro
-                             ? "Não foi possível carregar os projetos"
-                             : "Selecione um projeto"}
-                     </option>
-                     {projetos.map((p) => (
-                        <option key={p.id_projeto} value={p.id_projeto}>
-                           {p.id_projeto} — {p.modelo}
+                     {/* Na edição o campo só exibe: a opção vem da própria
+                         aeronave, sem depender da lista de projetos carregar. */}
+                     {isEditMode && editingAeronave ? (
+                        <option value={editingAeronave.proj.id_projeto}>
+                           {editingAeronave.proj.id_projeto} —{" "}
+                           {editingAeronave.proj.modelo}
                         </option>
-                     ))}
+                     ) : (
+                        <>
+                           <option value="">
+                              {projetosCarregando
+                                 ? "Carregando projetos…"
+                                 : projetosErro
+                                   ? "Não foi possível carregar os projetos"
+                                   : "Selecione um projeto"}
+                           </option>
+                           {projetos.map((p) => (
+                              <option key={p.id_projeto} value={p.id_projeto}>
+                                 {p.id_projeto} — {p.modelo}
+                              </option>
+                           ))}
+                        </>
+                     )}
                   </Select>
-                  {errors.projeto && (
+                  {errors.projeto ? (
                      <p className="mt-1 text-sm text-red-600">
                         {errors.projeto}
                      </p>
+                  ) : (
+                     isEditMode && (
+                        <p className="mt-1 text-xs text-gray-500">
+                           O projeto não muda depois do cadastro.
+                        </p>
+                     )
                   )}
                </div>
 

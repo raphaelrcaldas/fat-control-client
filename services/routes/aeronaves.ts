@@ -1,4 +1,4 @@
-import request, { ApiError, parseApiResponse, readApiData } from "../Api";
+import request, { parseApiResponse, readApiData } from "../Api";
 import type { ApiPaginatedResponse, ApiResponse, ApiResult } from "@/types/api";
 
 const aeronaveRoute = "ops/aeronaves/";
@@ -33,7 +33,6 @@ export interface AeronaveUpdate {
    sit?: string;
    obs?: string | null;
    is_sim?: boolean;
-   projeto?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -92,12 +91,12 @@ export async function getAeronaves(
 /**
  * Busca a frota inteira, esgotando a paginação.
  *
- * O backend crava `per_page = min(per_page, 100)` como teto rígido (não
- * default) — uma única chamada de `getAeronaves` trunca em silêncio acima de
- * 100 aeronaves na org. Aqui paginamos até `page >= pages` (o `pages` que a
- * própria resposta já traz), com um teto de iterações como trava de sanidade:
- * uma resposta malformada (`pages` não decrescendo) não pode travar o browser
- * em loop infinito.
+ * O backend valida `per_page` com `Query(ge=1, le=100)`: pedir mais de 100
+ * responde 422, então não há como trazer a frota numa chamada só quando a org
+ * passa de 100 aeronaves. Aqui paginamos de 100 em 100 até `page >= pages` (o
+ * `pages` que a própria resposta já traz), com um teto de iterações como trava
+ * de sanidade: uma resposta malformada (`pages` não decrescendo) não pode
+ * travar o browser em loop infinito.
  */
 export async function getAllAeronaves(
    params?: Omit<GetAeronavesParams, "page" | "per_page">,
@@ -118,24 +117,6 @@ export async function getAllAeronaves(
    }
 
    return items;
-}
-
-export async function getAeronave(matricula: string): Promise<AeronavePublic> {
-   const response = await request("GET", aeronaveRoute + matricula);
-   const result = await readApiData<ApiResponse<AeronavePublic>>(
-      response,
-      (message) => message ?? "Aeronave não encontrada."
-   );
-   // Ver `getUserById`: devolver `undefined` numa função de query vira um erro
-   // do TanStack que não aponta para a causa.
-   if (!result.data) {
-      throw new ApiError(
-         result.message ?? "Aeronave não encontrada.",
-         result.errors,
-         response.status
-      );
-   }
-   return result.data;
 }
 
 export async function createAeronave(

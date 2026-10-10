@@ -94,6 +94,26 @@ export default function AeronavesPage() {
             </div>
          </header>
 
+         {/* Refetch que falhou com a lista em tela: mantém e avisa */}
+         {isError && data && (
+            <p
+               role="status"
+               className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500"
+            >
+               <span className="min-w-0 flex-1 truncate">
+                  Não foi possível atualizar a lista
+               </span>
+               <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="min-h-[24px] shrink-0 font-semibold text-slate-900 underline underline-offset-2 disabled:opacity-50"
+               >
+                  Tentar novamente
+               </button>
+            </p>
+         )}
+
          {/* Content */}
          {showSkeleton ? (
             <AeronaveListSkeleton />

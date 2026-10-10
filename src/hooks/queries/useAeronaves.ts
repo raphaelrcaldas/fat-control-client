@@ -27,9 +27,6 @@ export const aeronaveKeys = {
    // literal "all" evita colisão com list(undefined) (== [...lists(), undefined]).
    allList: (filters?: Omit<GetAeronavesParams, "page" | "per_page">) =>
       [...aeronaveKeys.lists(), "all", filters] as const,
-   details: () => [...aeronaveKeys.all, "detail"] as const,
-   detail: (matricula: string) =>
-      [...aeronaveKeys.details(), matricula] as const,
    projetos: () => [...aeronaveKeys.all, "projetos"] as const,
 };
 
