@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "flowbite-react";
 import { HiOutlineTrash } from "react-icons/hi";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -46,28 +46,6 @@ export function ClearCartButton({
       setConfirming(aberto);
       onOpenChange?.(aberto);
    };
-
-   /**
-    * Esc fecha a confirmacao.
-    *
-    * O `Modal` do flowbite-react 0.12.17 so escuta Esc com `dismissible`
-    * (`useDismiss(..., { enabled: dismissible })`), e `dismissible` liga junto
-    * o fechar-ao-clicar-fora — que numa confirmacao destrutiva e o clique
-    * errado mais facil de dar. Dai o Esc a mao, sem o resto do pacote.
-    */
-   useEffect(() => {
-      if (!confirming) return;
-      const onKey = (e: KeyboardEvent) => {
-         if (e.key !== "Escape") return;
-         // Nao deixa o Esc chegar a quem hospeda este botao (a gaveta), que
-         // fecharia por baixo e deixaria a confirmacao orfa.
-         e.stopPropagation();
-         alternar(false);
-      };
-      document.addEventListener("keydown", onKey, true);
-      return () => document.removeEventListener("keydown", onKey, true);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [confirming]);
 
    return (
       <>

@@ -206,6 +206,9 @@ export function SearchableSelect({
             )}
             <span className="flex shrink-0 items-center gap-0.5">
                {clearable && value && (
+                  // Alvo de 24px; a margem negativa o faz avançar sobre o
+                  // padding do gatilho em vez de esticá-lo (o campo crescia
+                  // ~6px ao receber valor e a linha de filtros saltava).
                   <span
                      role="button"
                      tabIndex={0}
@@ -222,9 +225,10 @@ export function SearchableSelect({
                            setIsOpen(false);
                         }
                      }}
-                     className="rounded p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+                     className="-my-[4px] grid min-h-[24px] min-w-[24px] place-items-center rounded text-gray-400 hover:bg-gray-200 hover:text-gray-600"
                   >
-                     <HiX className="h-3.5 w-3.5" />
+                     <HiX className="h-3.5 w-3.5" aria-hidden />
+                     <span className="sr-only">Limpar seleção</span>
                   </span>
                )}
                <HiChevronDown

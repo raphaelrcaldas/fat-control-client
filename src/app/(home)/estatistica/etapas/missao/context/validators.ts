@@ -48,7 +48,14 @@ export function deriveFormErrors(
 ): FormErrors {
    const errs: FormErrors = {};
 
-   if (form.data && (form.data < DATA_MIN || form.data > DATA_MAX)) {
+   // A comparação é de texto: sem exigir o formato antes, um ano de 5+
+   // dígitos ("20260-01-01") ficaria entre DATA_MIN e DATA_MAX.
+   if (
+      form.data &&
+      (!/^\d{4}-\d{2}-\d{2}$/.test(form.data) ||
+         form.data < DATA_MIN ||
+         form.data > DATA_MAX)
+   ) {
       errs.data = `Ano entre ${DATA_MIN.slice(0, 4)} e ${DATA_MAX.slice(0, 4)}.`;
    }
 

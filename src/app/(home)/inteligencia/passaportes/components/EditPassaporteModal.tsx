@@ -354,7 +354,12 @@ const EditPassaporteModal = memo(function EditPassaporteModal({
 
    return (
       <>
-         <Modal show={show} onClose={onClose} size="2xl" dismissible>
+         <Modal
+            show={show}
+            onClose={onClose}
+            size="2xl"
+            dismissible={!isDeleting}
+         >
             {/* Cabeçalho-dossiê: identidade do militar como título */}
             <ModalHeader>
                <div className="flex w-full items-center justify-between gap-2">

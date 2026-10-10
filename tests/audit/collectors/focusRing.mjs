@@ -63,10 +63,14 @@ export function createFocusRingCollector({ maxStops, maxSkips, skipWithin }) {
                primeiro: null,
                signature(node) {
                   const s = getComputedStyle(node);
+                  // Sem outline desenhado, largura e cor nao aparecem na tela,
+                  // mas mudam no blur: contá-las acusava foco visivel em abas
+                  // Flowbite sem indicador nenhum (falso negativo).
+                  const semOutline = s.outlineStyle === "none";
                   return [
-                     s.outlineWidth,
+                     semOutline ? "" : s.outlineWidth,
                      s.outlineStyle,
-                     s.outlineColor,
+                     semOutline ? "" : s.outlineColor,
                      s.boxShadow,
                      s.borderColor,
                      s.backgroundColor,
