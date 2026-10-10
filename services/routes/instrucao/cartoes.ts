@@ -108,7 +108,10 @@ export async function deleteCartoesOrfaos(
       await request("DELETE", `${cartoesRoute}orfaos`, { user_ids })
    );
    if (!result.ok || !result.data) {
-      throw new Error(result.message || "Erro ao limpar cartões órfãos");
+      throw new ApiError(
+         result.message || "Erro ao limpar cartões órfãos",
+         result.errors
+      );
    }
    return result.data;
 }
