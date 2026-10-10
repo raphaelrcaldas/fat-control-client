@@ -24,6 +24,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({
    useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+   usePathname: () => "/instrucao/simulador",
    useSearchParams: () =>
       new URLSearchParams({ ano: "2026", piloto: mocks.piloto }),
 }));

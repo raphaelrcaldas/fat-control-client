@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import useDebouncedValue from "@/hooks/useDebouncedValue";
+import { useSearchParamsUpdater } from "@/hooks/useSearchParamsState";
 import { todayIso } from "@/../utils/dateHandler";
 import { useSimuladorDuplas } from "./useSimuladorDuplas";
 
@@ -41,10 +41,12 @@ function useSyncParamToState(
 }
 
 export function useSimuladorFilters() {
-   const searchParams = useSearchParams();
-   const router = useRouter();
+   // Escritas pelo `setParams` compartilhado: ele compõe sobre a última query
+   // pretendida, não sobre a do render — duas escritas seguidas (ex.: o
+   // debounce do piloto e a troca de ano) não se desfazem. Ver
+   // `docs/ai/notes/frontend-armadilhas.md`.
+   const { searchParams, setParams: updateParams } = useSearchParamsUpdater();
    const currentYear = getCurrentYear();
-   const spString = searchParams.toString();
 
    const rawAno = searchParams.get("ano") ?? "";
    const urlAno = /^\d{4}$/.test(rawAno) ? rawAno : String(currentYear);
@@ -54,9 +56,7 @@ export function useSimuladorFilters() {
    useEffect(() => {
       if (rawAno === urlAno) return;
 
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("ano", urlAno);
-      router.replace(`?${params.toString()}`, { scroll: false });
+      updateParams({ ano: urlAno });
       // Semeia o default somente na primeira montagem. Mudanças posteriores
       // são feitas pelos handlers ou pela navegação do navegador.
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,24 +64,6 @@ export function useSimuladorFilters() {
 
    const [filterPiloto, setFilterPiloto] = useState(urlPiloto);
    const debouncedPiloto = useDebouncedValue(filterPiloto, 350);
-
-   const updateParams = useCallback(
-      (updates: Record<string, string | undefined>) => {
-         const params = new URLSearchParams(spString);
-
-         for (const [key, value] of Object.entries(updates)) {
-            if (value === undefined || value === "") {
-               params.delete(key);
-            } else {
-               params.set(key, value);
-            }
-         }
-
-         const query = params.toString();
-         router.replace(query ? `?${query}` : "?", { scroll: false });
-      },
-      [router, spString]
-   );
 
    useSyncDebouncedParam(debouncedPiloto, "piloto", urlPiloto, updateParams);
    useSyncParamToState(
@@ -103,10 +85,8 @@ export function useSimuladorFilters() {
 
    const clearFilters = useCallback(() => {
       setFilterPiloto("");
-      const params = new URLSearchParams();
-      params.set("ano", String(currentYear));
-      router.replace(`?${params.toString()}`, { scroll: false });
-   }, [currentYear, router]);
+      updateParams({ ano: String(currentYear), piloto: undefined });
+   }, [currentYear, updateParams]);
 
    const removeAnoFilter = useCallback(
       () => updateParams({ ano: String(currentYear) }),
