@@ -28,6 +28,7 @@ import {
    MdSettings,
    MdInsights,
    MdOutlineRateReview,
+   MdOutlineCategory,
 } from "react-icons/md";
 import { FaUsers, FaBuilding, FaSitemap, FaUserGroup } from "react-icons/fa6";
 import { FaPaperPlane } from "react-icons/fa";
@@ -380,6 +381,11 @@ export const navItems = [
             icon: MdMoney,
             label: "Diárias",
             path: "/admin/diarias",
+         },
+         {
+            icon: MdOutlineCategory,
+            label: "Tipos de Missão",
+            path: "/admin/tipos-missao",
          },
          // Operação — Feedbacks abre o bloco por ser o único com fila de
          // trabalho pendente; o resto é diagnóstico e manutenção.
