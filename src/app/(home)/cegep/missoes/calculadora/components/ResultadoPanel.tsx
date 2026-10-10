@@ -110,7 +110,7 @@ function ErroBanner({
                )}
             </div>
          </div>
-         <Button size="xs" color="failure" onClick={onRecalcular}>
+         <Button size="xs" color="red" onClick={onRecalcular}>
             Tentar novamente
          </Button>
       </div>
@@ -163,13 +163,13 @@ function ResultadoConteudo({
                         <th className="pb-1 text-left font-normal">
                            Combinação
                         </th>
-                        <th className="pb-1 pl-4 text-right font-normal">
+                        <th className="pb-1 pl-2 text-right font-normal sm:pl-4">
                            Unit.
                         </th>
-                        <th className="pb-1 pl-4 text-right font-normal">
+                        <th className="pb-1 pl-2 text-right font-normal sm:pl-4">
                            Qtd
                         </th>
-                        <th className="pb-1 pl-4 text-right font-normal">
+                        <th className="pb-1 pl-2 text-right font-normal sm:pl-4">
                            Subtotal
                         </th>
                      </tr>
@@ -185,13 +185,13 @@ function ResultadoConteudo({
                                  c.p_g.toUpperCase()}{" "}
                               · {SITUACAO_CONFIG[c.sit].label}
                            </td>
-                           <td className="py-1 pl-4 text-right whitespace-nowrap text-slate-600">
+                           <td className="py-1 pl-2 text-right whitespace-nowrap text-slate-600 sm:pl-4">
                               {realCurrency(c.valor_unitario)}
                            </td>
-                           <td className="py-1 pl-4 text-right whitespace-nowrap text-slate-500">
+                           <td className="py-1 pl-2 text-right whitespace-nowrap text-slate-500 sm:pl-4">
                               ×{c.qtd}
                            </td>
-                           <td className="py-1 pl-4 text-right font-semibold whitespace-nowrap text-slate-900">
+                           <td className="py-1 pl-2 text-right font-semibold whitespace-nowrap text-slate-900 sm:pl-4">
                               {realCurrency(c.subtotal)}
                            </td>
                         </tr>

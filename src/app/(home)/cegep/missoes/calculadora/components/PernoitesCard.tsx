@@ -73,8 +73,13 @@ export function PernoitesCard({
       setPnts((prev) => encadear(prev.filter((_, i) => i !== index)));
    }
 
+   // `@container`: tabela ou mini-cards pela largura do PRÓPRIO card, não da
+   // tela — a coluna do formulário vai de ~450px a ~900px conforme a tela, a
+   // sidebar e o layout de duas colunas, e o input de data muda de largura
+   // entre navegadores (~111px no Chromium Linux, ~139px no Windows). Abaixo
+   // do limiar a tabela transbordava com scroll horizontal.
    return (
-      <div className="rounded border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="@container rounded border border-slate-200 bg-white p-4 shadow-sm">
          <div className="mb-3 flex items-center justify-between gap-2">
             <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
                Pernoites
@@ -82,16 +87,16 @@ export function PernoitesCard({
             <button
                type="button"
                onClick={addRow}
-               className="group text-primary-600 hover:text-primary-700 flex items-center gap-1.5 text-sm font-semibold transition-all"
+               className="group text-primary-600 hover:text-primary-700 flex min-h-[24px] items-center gap-1.5 text-sm font-semibold transition-all"
             >
                <HiPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
                adicionar
             </button>
          </div>
 
-         {/* Desktop/tablet largo: tabela densa (só a partir de md). */}
+         {/* Card largo: tabela densa. */}
          {pnts.length > 0 && (
-            <div className="hidden overflow-x-auto md:block">
+            <div className="hidden @min-[660px]:block">
                <Table>
                   <TableHead>
                      <TableRow>
@@ -109,11 +114,11 @@ export function PernoitesCard({
                         <TableHeadCell className="px-2 py-1.5">
                            Cidade
                         </TableHeadCell>
-                        <TableHeadCell className="px-2 py-1.5 text-center">
+                        <TableHeadCell className="px-2 py-1.5 text-center whitespace-nowrap">
                            ½ diária
                         </TableHeadCell>
                         <TableHeadCell
-                           className="px-2 py-1.5 text-center"
+                           className="px-2 py-1.5 text-center whitespace-nowrap"
                            title="Acréscimo de deslocamento"
                         >
                            Acrésc.
@@ -195,10 +200,10 @@ export function PernoitesCard({
             </div>
          )}
 
-         {/* Mobile: cada pernoite vira um mini-card empilhado, sem scroll
-             horizontal escondido. */}
+         {/* Card estreito (celular ou coluna apertada): cada pernoite vira um
+             mini-card empilhado, sem scroll horizontal escondido. */}
          {pnts.length > 0 && (
-            <ul className="space-y-3 md:hidden">
+            <ul className="space-y-3 @min-[660px]:hidden">
                {pnts.map((pnt, idx) => {
                   const isInvalid = invalidIdx.has(idx);
                   return (
@@ -415,7 +420,7 @@ function RemoveButton({ onClick }: { onClick: () => void }) {
       <button
          type="button"
          onClick={onClick}
-         className="flex items-center justify-center rounded p-1 text-red-500 hover:bg-red-50"
+         className="flex min-h-[24px] min-w-[24px] items-center justify-center rounded p-1 text-red-500 hover:bg-red-50"
          title="Remover pernoite"
          aria-label="Remover pernoite"
       >

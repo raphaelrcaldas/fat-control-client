@@ -72,7 +72,7 @@ export function CombinacoesCard({
             <button
                type="button"
                onClick={addRow}
-               className="group text-primary-600 hover:text-primary-700 flex items-center gap-1.5 text-sm font-semibold transition-all"
+               className="group text-primary-600 hover:text-primary-700 flex min-h-[24px] items-center gap-1.5 text-sm font-semibold transition-all"
             >
                <HiPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
                adicionar
@@ -261,7 +261,7 @@ function RemoveButton({ onClick }: { onClick: () => void }) {
       <button
          type="button"
          onClick={onClick}
-         className="flex items-center justify-center rounded p-1 text-red-500 hover:bg-red-50"
+         className="flex min-h-[24px] min-w-[24px] items-center justify-center rounded p-1 text-red-500 hover:bg-red-50"
          title="Remover militar"
          aria-label="Remover militar"
       >

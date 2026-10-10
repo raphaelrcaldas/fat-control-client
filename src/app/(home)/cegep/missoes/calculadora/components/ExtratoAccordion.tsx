@@ -133,26 +133,30 @@ function PernoiteHeader({
    const localCidade = pnt?.cidade
       ? `${pnt.cidade.nome}, ${pnt.cidade.uf}`
       : "Cidade";
+   const periodo = `${formatPeriodoSemAno(pernoite.data_ini, pernoite.data_fim)} · ${pernoite.dias} ${pernoite.dias === 1 ? "dia" : "dias"}${pernoite.ac_desloc > 0 ? ` · +${realCurrency(pernoite.ac_desloc)}` : ""}`;
 
+   // Cidade e valor dividem a 1ª linha; o período fica sozinho na 2ª, com a
+   // largura toda — dividindo a coluna com o valor, "3 dias" quebrava em
+   // duas linhas no celular.
    return (
-      <div className="flex flex-wrap items-start justify-between gap-2 font-mono text-xs">
-         <span className="min-w-0 flex-1">
-            <span className="block truncate">
+      <div className="min-w-0 font-mono text-xs">
+         <div className="flex items-baseline justify-between gap-2">
+            <span
+               className="min-w-0 truncate"
+               title={`${localCidade} G${pernoite.grupo_cid}`}
+            >
                {localCidade}{" "}
                <span className="text-slate-500">G{pernoite.grupo_cid}</span>
             </span>
-            <span className="block text-slate-500">
-               {formatPeriodoSemAno(pernoite.data_ini, pernoite.data_fim)} ·{" "}
-               {pernoite.dias} {pernoite.dias === 1 ? "dia" : "dias"}
-               {pernoite.ac_desloc > 0 &&
-                  ` · +${realCurrency(pernoite.ac_desloc)}`}
+            <span className="shrink-0 font-semibold whitespace-nowrap text-slate-800 tabular-nums">
+               {realCurrency(subtotalPorMilitar)}{" "}
+               <span className="text-[10px] font-normal text-slate-500">
+                  / militar
+               </span>
             </span>
-         </span>
-         <span className="font-semibold whitespace-nowrap text-slate-800 tabular-nums">
-            {realCurrency(subtotalPorMilitar)}{" "}
-            <span className="text-[10px] font-normal text-slate-500">
-               / militar
-            </span>
+         </div>
+         <span className="block truncate text-slate-500" title={periodo}>
+            {periodo}
          </span>
       </div>
    );
