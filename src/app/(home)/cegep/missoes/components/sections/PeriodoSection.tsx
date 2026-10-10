@@ -85,7 +85,6 @@ export function PeriodoSection({
                      id="ac_desloc"
                      color="blue"
                      onChange={(e) => setAcrecDesloc(e.target.checked)}
-                     className="size-5"
                      checked={acrecDesloc}
                   />
                ) : (

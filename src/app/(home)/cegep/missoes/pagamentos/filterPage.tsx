@@ -122,7 +122,6 @@ export function FilterPage({ active }: { active: boolean }) {
                            {/* Glifo compacto; o label envolve caixa e área clicável. */}
                            <label className="inline-flex cursor-pointer items-center justify-center">
                               <Checkbox
-                                 className="size-5"
                                  checked={selectedAll}
                                  color="primary"
                                  onChange={() => setSelectedAll(!selectedAll)}

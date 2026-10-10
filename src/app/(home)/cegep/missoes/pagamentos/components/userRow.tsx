@@ -72,7 +72,7 @@ export const UserRow = memo(function UserRow({
       <TableRow className="hover:bg-slate-50">
          <TableCell className="w-8 text-center">
             <Checkbox
-               className="size-5 cursor-pointer"
+               className="cursor-pointer"
                color={statusConfig.checkBoxColor}
                checked={checked}
                onChange={onChange}
@@ -208,7 +208,7 @@ export const UserCard = memo(function UserCard({
             {/* Glifo compacto; o label envolve caixa e área clicável. */}
             <label className="inline-flex shrink-0 cursor-pointer items-center justify-center">
                <Checkbox
-                  className="size-5 cursor-pointer"
+                  className="cursor-pointer"
                   color={statusConfig.checkBoxColor}
                   checked={checked}
                   onChange={onChange}

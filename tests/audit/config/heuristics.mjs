@@ -19,11 +19,17 @@ export const HEURISTICS = {
     * engordava a tabela inteira — ~30% de altura por linha, ~3 linhas a menos
     * por tela. `bandWidthFactor` define o que conta como faixa: largura >= N x
     * a regua (24*3 = 72px).
+    *
+    * `checkboxMinPx`: checkbox tem 20px no sistema inteiro (tema do Flowbite),
+    * abaixo da regua por decisao de densidade de 2026-10-10 — ver
+    * `docs/ai/rules/frontend.md`. Sem regua propria o coletor acusaria todo
+    * checkbox para sempre.
     */
    touchTarget: {
       minPx: 24,
       bandMinPx: 20,
       bandWidthFactor: 3,
+      checkboxMinPx: 20,
    },
 
    /**

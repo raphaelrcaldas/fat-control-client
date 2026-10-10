@@ -55,6 +55,10 @@ const customTheme = createTheme({
       },
    },
    checkbox: {
+      // 20px em px, num lugar só: tamanho do sistema, abaixo da régua de 24px
+      // por decisão (densidade das tabelas). O harness mede checkbox contra
+      // 20px — ver `docs/ai/rules/frontend.md`.
+      base: "h-[20px] w-[20px]",
       color: {
          primary: "text-primary-600 focus:ring-primary-600",
       },
@@ -69,9 +73,13 @@ const customTheme = createTheme({
       },
    },
    modal: {
-      root: { show: { on: "backdrop-blur-xs" } },
+      // Padding no overlay e diálogo do tamanho do cartão: com o default
+      // (`h-full p-4` abaixo de `md`) o diálogo cobre a tela do celular e o
+      // toque fora não fecha. O `p-0` é obrigatório — o merge só substitui
+      // classe conflitante. Ver `docs/ai/notes/frontend-armadilhas.md`.
+      root: { base: "p-4", show: { on: "backdrop-blur-xs" } },
       // rounded (não o rounded-lg default): padrão visual do projeto.
-      content: { inner: "rounded" },
+      content: { base: "relative h-auto w-full p-0", inner: "rounded" },
       header: {
          base: "border-gray-300",
          close: { base: "rounded" },

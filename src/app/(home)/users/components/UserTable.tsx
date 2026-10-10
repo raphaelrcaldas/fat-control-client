@@ -56,7 +56,6 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                <TableRow>
                   <TableHeadCell className="w-10 px-3">
                      <Checkbox
-                        className="size-[20px]"
                         color="primary"
                         checked={allOnPage}
                         ref={(el) => {
@@ -116,7 +115,6 @@ export function UserTable({ usuarios, cart }: UserTableProps) {
                      >
                         <TableCell className="px-3">
                            <Checkbox
-                              className="size-[20px]"
                               color="primary"
                               checked={checked}
                               onChange={() => cart.toggle(user)}

@@ -56,7 +56,6 @@ export const TripIndisp = ({ tripData, onClose }: TripIndispProps) => {
          onClose={onClose}
          dismissible
          className="h-dvh items-start"
-         theme={{ content: { base: "h-auto" } }}
       >
          <ModalHeader
             as="h2"

@@ -342,12 +342,7 @@ export function MilitaryDataSection({
 
          {showActive && (
             <div className="flex items-center gap-2 rounded bg-gray-50 p-3 sm:col-span-2">
-               <Checkbox
-                  id="active"
-                  className="size-5"
-                  color="primary"
-                  {...register("active")}
-               />
+               <Checkbox id="active" color="primary" {...register("active")} />
                <Label htmlFor="active" className="cursor-pointer">
                   Usuário ativo
                </Label>

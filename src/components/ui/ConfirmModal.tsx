@@ -67,10 +67,6 @@ export function ConfirmModal({
          dismissible={!isLoading}
          initialFocus={isLoading ? 0 : cancelRef}
          aria-describedby={description ? descId : undefined}
-         theme={{
-            root: { base: "p-4" },
-            content: { base: "relative h-auto w-full p-0" },
-         }}
       >
          {/*
           * O header guarda o icone e o titulo visiveis. O Modal do Flowbite crava
@@ -85,12 +81,8 @@ export function ConfirmModal({
           * (`absolute end-2 top-2`, ocupa de 7px a 35px do topo): `pt-10`
           * (35px) comeca o icone exatamente onde o X termina; o que os separa
           * e a posicao horizontal (X no canto `end-2`, icone centralizado), e o
-          * X nao desloca o conteudo. A folga de 14px em volta do cartao fica no
-          * `root` (o overlay), com `p-4`; no `content`, `p-0` anula o `p-4` e o
-          * `h-auto` troca o `h-full` do Flowbite. Assim o `div[role=dialog]`
-          * tem exatamente o tamanho do cartao: o `useDismiss` conta como
-          * "dentro" so o que esta sobre o cartao, e o toque na folga (e no
-          * overlay) fecha. O root centraliza o dialogo na vertical.
+          * X nao desloca o conteudo. O toque fora fecha no celular gracas ao
+          * tema global (`modal.root`/`modal.content` em `context/theme.tsx`).
           *
           * `dismissible={!isLoading}`: Escape, clique fora e X fecham, exceto
           * enquanto processa — sem a prop o `useDismiss` fica desligado. Nada no

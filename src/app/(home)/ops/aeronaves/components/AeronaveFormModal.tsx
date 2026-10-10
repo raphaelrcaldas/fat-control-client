@@ -151,14 +151,7 @@ export function AeronaveFormModal({
    }
 
    function handleSitChange(value: AeronaveFormData["sit"]) {
-      // "DI" (Disponível) não tem restrição — zera `obs` no próprio evento de
-      // troca (não num efeito) para o payload nunca carregar uma observação
-      // presa de uma situação anterior que não é mais exibida no form.
-      setFormData((prev) => ({
-         ...prev,
-         sit: value,
-         obs: value === "DI" ? null : prev.obs,
-      }));
+      setFormData((prev) => ({ ...prev, sit: value }));
       setErrors((prev) => {
          const next = { ...prev };
          delete next.sit;
@@ -448,42 +441,24 @@ export function AeronaveFormModal({
                      <p className="mt-1 text-sm text-red-600">{errors.sit}</p>
                   )}
 
-                  {/* Observação - expande suavemente quando sit != DI */}
-                  <div
-                     // Colapsado é só altura zero + overflow hidden: o
-                     // <textarea> continuava na ordem do Tab, então o foco
-                     // sumia dentro de um campo invisível (WCAG 2.4.3). O
-                     // `inert` tira do Tab e da árvore de acessibilidade sem
-                     // desmontar, preservando a animação de altura.
-                     inert={formData.sit === "DI"}
-                     className={clsx(
-                        // Anima só a linha do grid (o `transition-all` levava
-                        // cor e borda de brinde) e respeita quem pediu menos
-                        // movimento.
-                        "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none",
-                        formData.sit !== "DI"
-                           ? "mt-4 grid-rows-[1fr] opacity-100"
-                           : "grid-rows-[0fr] opacity-0"
-                     )}
-                  >
-                     <div className="min-h-0 overflow-hidden">
-                        <Label
-                           htmlFor="obs"
-                           className="mb-2 block text-sm font-semibold"
-                        >
-                           Observação / Restrição
-                        </Label>
-                        <Textarea
-                           id="obs"
-                           className="placeholder:text-slate-400"
-                           placeholder="Descreva a restrição ou observação..."
-                           rows={3}
-                           value={formData.obs || ""}
-                           onChange={(e) =>
-                              updateField("obs", e.target.value || null)
-                           }
-                        />
-                     </div>
+                  {/* Observação vale em qualquer situação, inclusive DI. */}
+                  <div className="mt-4">
+                     <Label
+                        htmlFor="obs"
+                        className="mb-2 block text-sm font-semibold"
+                     >
+                        Observação / Restrição
+                     </Label>
+                     <Textarea
+                        id="obs"
+                        className="placeholder:text-slate-400"
+                        placeholder="Descreva a restrição ou observação..."
+                        rows={3}
+                        value={formData.obs || ""}
+                        onChange={(e) =>
+                           updateField("obs", e.target.value || null)
+                        }
+                     />
                   </div>
                </div>
 

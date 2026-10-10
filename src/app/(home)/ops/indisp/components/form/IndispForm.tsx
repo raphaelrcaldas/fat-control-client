@@ -171,7 +171,6 @@ export function IndispForm({
          }}
          dismissible={!isMutating}
          className="h-dvh items-start"
-         theme={{ content: { base: "h-auto" } }}
       >
          <ModalHeader
             as="h2"

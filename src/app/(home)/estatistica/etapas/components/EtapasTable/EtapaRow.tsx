@@ -165,7 +165,7 @@ export const EtapaRow = memo(function EtapaRow({
                   checked={checked}
                   onChange={() => onToggleEtapa(id)}
                   aria-label={`Selecionar etapa ${origem}-${destino} de ${isoDateToString(data)}`}
-                  className="size-5 cursor-pointer"
+                  className="cursor-pointer"
                />
             </div>
          </TableCell>

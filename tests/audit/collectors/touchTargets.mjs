@@ -15,6 +15,7 @@ export function createTouchTargetsCollector({
    minPx,
    bandMinPx,
    bandWidthFactor,
+   checkboxMinPx,
 }) {
    const INTERACTIVE =
       "a[href], button, input, select, textarea, [role=button], [role=link], [role=tab], [role=checkbox], [tabindex]:not([tabindex='-1'])";
@@ -24,7 +25,13 @@ export function createTouchTargetsCollector({
 
       collect: ({ page }) =>
          page.evaluate(
-            ({ selector, minPx, bandMinPx, bandWidthFactor }) => {
+            ({
+               selector,
+               minPx,
+               bandMinPx,
+               bandWidthFactor,
+               checkboxMinPx,
+            }) => {
                const { selectorOf, visibleElements } = window.__audit;
                const small = [];
                const bandWidthPx = minPx * bandWidthFactor;
@@ -48,7 +55,14 @@ export function createTouchTargetsCollector({
                   // geometrica, nao por tag: pega <tr role=button>, <li>, <a>
                   // de lista e qualquer faixa larga.
                   const band = rect.width >= bandWidthPx;
-                  const floor = band ? bandMinPx : minPx;
+                  const checkbox = el.matches(
+                     "input[type=checkbox], [role=checkbox]"
+                  );
+                  const floor = band
+                     ? bandMinPx
+                     : checkbox
+                       ? checkboxMinPx
+                       : minPx;
                   // Na faixa so a ALTURA e cobrada (a largura ja sobra); no
                   // alvo compacto continuam valendo os dois lados.
                   if (band ? rect.height >= floor : minSide >= floor) continue;
@@ -72,6 +86,7 @@ export function createTouchTargetsCollector({
                return {
                   minPx,
                   bandMinPx,
+                  checkboxMinPx,
                   total: small.length,
                   items: small.slice(0, 20),
                };
@@ -81,12 +96,16 @@ export function createTouchTargetsCollector({
                minPx,
                bandMinPx,
                bandWidthFactor,
+               checkboxMinPx,
             }
          ),
 
       render: (data) => ({
          rows: [
-            ["Regua", `${data.minPx}px (faixa: ${data.bandMinPx}px alt.)`],
+            [
+               "Regua",
+               `${data.minPx}px (faixa: ${data.bandMinPx}px alt.; checkbox: ${data.checkboxMinPx}px)`,
+            ],
             ["Alvos abaixo da regua", data.total],
          ],
          sections: data.items.length

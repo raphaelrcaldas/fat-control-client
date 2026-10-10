@@ -330,7 +330,6 @@ export function FormPernoite({
                               checked={acDesloc}
                               color="green"
                               onChange={(e) => setAcDesloc(e.target.checked)}
-                              className="size-6"
                            />
                         </div>
                      </div>
@@ -352,7 +351,6 @@ export function FormPernoite({
                               checked={meiaDiaria}
                               color="yellow"
                               onChange={(e) => setMeiaDiaria(e.target.checked)}
-                              className="size-6"
                            />
                         </div>
                      </div>

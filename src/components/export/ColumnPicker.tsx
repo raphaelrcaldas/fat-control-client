@@ -94,7 +94,7 @@ export function ColumnPicker<T>({
                         >
                            <Checkbox
                               id={`col-${column.key}`}
-                              className="size-[18px] shrink-0"
+                              className="shrink-0"
                               color="primary"
                               checked={checked.has(column.key)}
                               onChange={() => onToggle(column.key)}

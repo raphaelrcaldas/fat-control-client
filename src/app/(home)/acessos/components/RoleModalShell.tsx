@@ -53,13 +53,6 @@ export function RoleModalShell({
             if (!isSaving) onClose();
          }}
          dismissible={!isSaving}
-         // Folga de 14px no root (overlay), não no diálogo: com `p-4` e
-         // `h-full` no content o diálogo cobria a viewport no mobile e o
-         // `useDismiss` tratava o toque fora do cartão como "dentro".
-         theme={{
-            root: { base: "p-4" },
-            content: { base: "relative h-auto w-full p-0" },
-         }}
       >
          <ModalHeader as="div" className="border-b">
             <div className="flex items-center gap-3">
