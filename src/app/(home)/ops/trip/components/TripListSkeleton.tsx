@@ -54,6 +54,9 @@ export function TripListSkeleton({ rows = 10 }: TripListSkeletonProps) {
                <TableBody className="divide-y divide-slate-100">
                   {Array.from({ length: rows }).map((_, i) => (
                      <TableRow key={i}>
+                        <TableCell className="pr-0 2xl:pr-0">
+                           <Bar className="h-[20px] w-[20px]" tone="soft" />
+                        </TableCell>
                         <TableCell>
                            <Bar className="w-8" />
                         </TableCell>
@@ -79,7 +82,13 @@ export function TripListSkeleton({ rows = 10 }: TripListSkeletonProps) {
                            <Bar className="mx-auto w-12" tone="soft" />
                         </TableCell>
                         <TableCell>
-                           <Bar className="ml-auto h-7 w-7" tone="soft" />
+                           {/* Mesma caixa do link de detalhes (borda +
+                               `p-1.5` + icone `h-4`), e nao uma barra de
+                               `h-7`: a barra deixava cada linha 1,45px mais
+                               baixa, e a lista saltava ~36px na carga. */}
+                           <div className="ml-auto w-fit animate-pulse rounded border border-slate-100 bg-slate-100 p-1.5">
+                              <div className="h-4 w-4" />
+                           </div>
                         </TableCell>
                      </TableRow>
                   ))}

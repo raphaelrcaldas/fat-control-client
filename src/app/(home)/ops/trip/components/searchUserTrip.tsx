@@ -2,16 +2,26 @@
 
 import { GoPlus } from "react-icons/go";
 import { Button } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchUser as UserSearchModal } from "@/app/(home)/users/components/searchUser";
 import { TripRegister } from "./tripRegister";
 import { UserPublic } from "services/routes/users";
 import { useTripUserIds } from "@/hooks/queries";
 
-export function SearchUser() {
+interface SearchUserProps {
+   onOpenChange?: (open: boolean) => void;
+}
+
+export function SearchUser({ onOpenChange }: SearchUserProps) {
    const [showSearch, setShowSearch] = useState(false);
    const [selectedUser, setSelectedUser] = useState<UserPublic | null>(null);
    const [showRegister, setShowRegister] = useState(false);
+
+   // Avisa a pagina quando um dos modais abre: a barra do carrinho precisa
+   // sumir, senao fica escurecida sob o backdrop e alcancavel pelo Tab.
+   useEffect(() => {
+      onOpenChange?.(showSearch || showRegister);
+   }, [showSearch, showRegister, onOpenChange]);
 
    // IDs de todos os usuários que já são tripulantes (ativos e inativos)
    const { data: tripUserIds = [] } = useTripUserIds();

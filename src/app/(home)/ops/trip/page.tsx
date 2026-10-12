@@ -1,6 +1,8 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Button, Select, Table, TableBody } from "flowbite-react";
+import clsx from "clsx";
 import { HiExclamationCircle, HiRefresh, HiUserGroup } from "react-icons/hi";
 import { Pagination } from "@/components/Pagination";
 import { SearchUser } from "./components/searchUserTrip";
@@ -12,6 +14,20 @@ import { TripTableHead } from "./components/TripTableHead";
 import { TRIP_TABLE_THEME } from "./tripTableTheme";
 import { PermBased } from "../../hooks/usePermBased";
 import { useTripList } from "./hooks/useTripList";
+import { useFuncoes } from "@/hooks/queries";
+import { useExportCart } from "@/components/export/useExportCart";
+import { ExportCartBar } from "@/components/export/ExportCartBar";
+import { ExportCartDrawer } from "@/components/export/ExportCartDrawer";
+import { ExportColumnsModal } from "@/components/export/ExportColumnsModal";
+import { tripsExportColumns } from "./exportColumns";
+import type { Trip } from "./types/trip.types";
+
+// Fora do componente: identidade estavel para o carrinho. A listagem sempre
+// traz `id`; o opcional do tipo e da linha nova da grade de cadastro.
+const getTripId = (trip: Trip) => trip.id ?? 0;
+const getCartLabel = (trip: Trip) =>
+   `${trip.user.posto.short} ${trip.user.nome_guerra}`.toUpperCase();
+const NOUN = { one: "tripulante", many: "tripulantes" };
 
 export default function TripPage() {
    const {
@@ -41,8 +57,51 @@ export default function TripPage() {
       filters.name !== "" ||
       filters.active !== true;
 
+   // Carrinho de exportacao: guarda o objeto inteiro, entao a selecao
+   // sobrevive a paginacao e a troca de filtro. Sem hidratacao por
+   // `POST /users/export` — nenhuma coluna de PII e oferecida aqui.
+   const cart = useExportCart<Trip>(getTripId);
+   const [showCartDrawer, setShowCartDrawer] = useState(false);
+   const [showExportModal, setShowExportModal] = useState(false);
+   const [cadastroAberto, setCadastroAberto] = useState(false);
+
+   const { label: funcLabel } = useFuncoes();
+   const exportColumns = useMemo(
+      () => tripsExportColumns(funcLabel),
+      [funcLabel]
+   );
+
+   // O carrinho guarda o retrato do clique; um tripulante editado depois
+   // sairia com o dado antigo. Na hora de exportar, quem esta na pagina
+   // visivel e trocado pela linha atual — o retrato fica para os demais.
+   const exportRows = useMemo(() => {
+      const atual = new Map(trips.map((t) => [getTripId(t), t]));
+      return cart.items.map((item) => atual.get(getTripId(item)) ?? item);
+   }, [cart.items, trips]);
+
+   // O que esta marcado fora da pagina visivel: sem isso, o contador da
+   // barra parece nao bater com a lista.
+   const selectedOnPage = trips.filter((t) => cart.has(getTripId(t))).length;
+   const selectedOffPage = cart.count - selectedOnPage;
+   const togglePage = () => {
+      if (trips.length > 0 && selectedOnPage === trips.length) {
+         cart.removeMany(trips.map(getTripId));
+      } else {
+         cart.addMany(trips);
+      }
+   };
+
    return (
-      <div className="flex flex-col gap-2">
+      // `md:pb-24` reservado SEMPRE a partir de `md` (onde a tabela, e com ela
+      // a selecao, aparece): condicional, marcar o primeiro tripulante
+      // empurraria a pagina inteira para cima. Abaixo de `md` so com carrinho
+      // cheio — selecao feita na tabela que sobrevive ao aparelho girar.
+      <div
+         className={clsx(
+            "flex flex-col gap-2 md:pb-24",
+            !cart.isEmpty && "pb-24"
+         )}
+      >
          {/* Masthead — padrão canônico do sistema */}
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
@@ -83,7 +142,7 @@ export default function TripPage() {
                      resource={"ops.tripulantes"}
                      requiredPerm={"create"}
                   >
-                     <SearchUser />
+                     <SearchUser onOpenChange={setCadastroAberto} />
                   </PermBased>
                </div>
             </div>
@@ -100,6 +159,22 @@ export default function TripPage() {
                hasActiveFilters={hasActiveFilters}
                disabled={loading}
             />
+
+            {/* Regiao viva sempre montada: leitor de tela nao anuncia
+                `role="status"` que ja nasce com o texto. Fora do ternario para
+                o aviso valer tambem no estado vazio e no de erro; sem
+                `loading`, no boot `trips` esta vazio e o texto cairia sobre o
+                skeleton. */}
+            <div role="status" className="hidden md:block">
+               {!loading && selectedOffPage > 0 && (
+                  <p className="px-4 py-2 text-xs text-slate-500">
+                     {selectedOffPage}{" "}
+                     {selectedOffPage === 1
+                        ? "selecionado fora desta página"
+                        : "selecionados fora desta página"}
+                  </p>
+               )}
+            </div>
 
             {loading ? (
                <TripListSkeleton rows={perPage} />
@@ -145,7 +220,7 @@ export default function TripPage() {
                            resource={"ops.tripulantes"}
                            requiredPerm={"create"}
                         >
-                           <SearchUser />
+                           <SearchUser onOpenChange={setCadastroAberto} />
                         </PermBased>
                      </div>
                   )}
@@ -175,7 +250,7 @@ export default function TripPage() {
 
                   {/* Refetch suave: mantém os dados e esmaece (keepPreviousData) */}
                   <div
-                     className={`transition-opacity duration-200 ${isFetching ? "opacity-50" : "opacity-100"}`}
+                     className={`transition-opacity duration-200 ${isFetching ? "pointer-events-none opacity-50" : "opacity-100"}`}
                   >
                      {/* Mobile: a tabela derrubaria justamente as colunas de nome */}
                      <ul className="divide-y divide-slate-100 md:hidden">
@@ -188,12 +263,20 @@ export default function TripPage() {
 
                      <div className="hidden min-h-96 overflow-x-auto md:block">
                         <Table hoverable theme={TRIP_TABLE_THEME}>
-                           <TripTableHead />
+                           <TripTableHead
+                              selection={{
+                                 selected: selectedOnPage,
+                                 total: trips.length,
+                                 onToggleAll: togglePage,
+                              }}
+                           />
                            <TableBody className="divide-y divide-slate-100">
                               {trips.map((trip) => (
                                  <TripRow
                                     key={trip.id ?? trip.trig}
                                     trip={trip}
+                                    checked={cart.has(getTripId(trip))}
+                                    onToggle={cart.toggle}
                                  />
                               ))}
                            </TableBody>
@@ -256,6 +339,50 @@ export default function TripPage() {
                </div>
             )}
          </div>
+
+         {/* `desktopOnly={false}`: a tabela (e a selecao) aparece ja em `md`,
+             abaixo do `lg` padrao da barra. Nos cards nao ha checkbox; a barra
+             so aparece abaixo de `md` se a selecao veio da tabela (aparelho
+             girado), e por isso continua la para revisar ou exportar. */}
+         <ExportCartBar
+            cart={cart}
+            getId={getTripId}
+            getLabel={getCartLabel}
+            onReview={() => setShowCartDrawer(true)}
+            onExport={() => setShowExportModal(true)}
+            noun={NOUN}
+            desktopOnly={false}
+            // Some tambem com o modal de cadastro aberto: por baixo do backdrop
+            // ela ficaria escurecida e alcancavel pelo Tab.
+            hidden={showCartDrawer || showExportModal || cadastroAberto}
+         />
+
+         <ExportCartDrawer
+            show={showCartDrawer}
+            onClose={() => setShowCartDrawer(false)}
+            cart={cart}
+            getId={getTripId}
+            getLabel={(trip) => ({
+               primary: getCartLabel(trip),
+               secondary: trip.user.nome_completo ?? undefined,
+            })}
+            onExport={() => {
+               setShowCartDrawer(false);
+               setShowExportModal(true);
+            }}
+            title="Tripulantes selecionados"
+            noun={NOUN}
+         />
+
+         <ExportColumnsModal
+            show={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            rows={exportRows}
+            columns={exportColumns}
+            storageKey="export:trips:columns"
+            fileBaseName="tripulantes"
+            sheetName="Tripulantes"
+         />
       </div>
    );
 }

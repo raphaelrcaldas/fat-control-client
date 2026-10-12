@@ -1,4 +1,4 @@
-import { TableRow, TableCell } from "flowbite-react";
+import { Checkbox, TableRow, TableCell } from "flowbite-react";
 import Link from "next/link";
 import clsx from "clsx";
 import { HiChevronRight } from "react-icons/hi";
@@ -7,14 +7,35 @@ import type { Trip } from "../types/trip.types";
 
 type TripRowProps = {
    trip: Trip;
+   checked: boolean;
+   onToggle: (trip: Trip) => void;
 };
 
-export function TripRow({ trip }: TripRowProps) {
+export function TripRow({ trip, checked, onToggle }: TripRowProps) {
    const user = trip.user;
    const href = trip.id != null ? `/ops/trip/${trip.id}` : null;
 
    return (
-      <TableRow className="group">
+      <TableRow
+         // O `hover:bg-gray-50` do `hoverable` apagaria o tom da selecao sob o
+         // mouse; marcada, a linha escurece no proprio tom.
+         className={clsx(
+            "group",
+            checked && "bg-primary-50/60 hover:bg-primary-50"
+         )}
+      >
+         {/* A `<label>` ocupa a celula inteira, para a sobra em volta do
+             quadrinho tambem marcar em vez de ser area morta. */}
+         <TableCell className="w-10 p-0 2xl:p-0">
+            <label className="flex cursor-pointer items-center py-2 pl-3 2xl:pl-6">
+               <Checkbox
+                  color="primary"
+                  checked={checked}
+                  onChange={() => onToggle(trip)}
+                  aria-label={`Selecionar ${user.posto.short} ${user.nome_guerra}`}
+               />
+            </label>
+         </TableCell>
          <TableCell className="text-sm font-medium whitespace-nowrap text-slate-600 uppercase">
             {user.posto.short}
          </TableCell>
