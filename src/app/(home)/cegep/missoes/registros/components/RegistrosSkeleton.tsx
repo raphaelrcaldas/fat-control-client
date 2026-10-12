@@ -1,6 +1,8 @@
 // Espelha o layout real dos resultados (cards e tabela) para zero layout-shift
 // na troca skeleton → conteúdo. Lê o mesmo viewMode da listagem.
 
+import clsx from "clsx";
+
 const CARD_COUNT = 8;
 const ROW_COUNT = 10;
 // Larguras fixas (nunca aleatórias) para evitar flicker/hydration mismatch.
@@ -70,6 +72,13 @@ const TABLE_HEADERS = [
    "Etiquetas",
 ];
 
+// Mesmas larguras das colunas flexíveis da tabela real.
+const LARGURA_COLUNA: Record<string, string> = {
+   Militares: "w-[70%]",
+   Pernoites: "w-1/5",
+   Etiquetas: "w-[10%]",
+};
+
 function TableSkeleton() {
    return (
       <div
@@ -82,7 +91,10 @@ function TableSkeleton() {
                   {TABLE_HEADERS.map((h) => (
                      <th
                         key={h}
-                        className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase"
+                        className={clsx(
+                           "px-4 py-2 text-xs font-semibold text-slate-400 uppercase",
+                           LARGURA_COLUNA[h]
+                        )}
                      >
                         {h}
                      </th>
@@ -111,7 +123,7 @@ function TableSkeleton() {
                         <div className="h-4 w-24 rounded bg-slate-100" />
                      </td>
                      <td className="px-4 py-2">
-                        <div className="mx-auto h-6 w-6 rounded-full bg-slate-100" />
+                        <div className="h-5 w-32 rounded bg-slate-100" />
                      </td>
                      <td className="px-4 py-2">
                         <div className="h-5 w-24 rounded bg-slate-100" />
