@@ -8,11 +8,13 @@ import {
    TableBody,
    TableRow,
    TableCell,
+   Checkbox,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { MdAttachFile, MdErrorOutline } from "react-icons/md";
 import clsx from "clsx";
 import type { UserCartaoSaude } from "services/routes/aeromedica/cartoesSaude";
+import type { ExportCart } from "@/components/export/useExportCart";
 import type { SortField, SortDirection } from "../types";
 import {
    getDateStatus,
@@ -154,27 +156,33 @@ const CELL = "px-4 py-2 whitespace-nowrap";
 const CartoesSaudeRow = memo(function CartoesSaudeRow({
    item,
    onClick,
+   checked,
+   onToggle,
 }: {
    item: UserCartaoSaude;
    onClick: (item: UserCartaoSaude) => void;
+   checked: boolean;
+   onToggle: (item: UserCartaoSaude) => void;
 }) {
    const { dot: dotColor, label: statusLabel } = getStatusConfig(
       getWorstStatus(item)
    );
 
+   // A linha nao e `role="button"`: botao nao pode conter o checkbox de
+   // selecao (axe `nested-interactive`). O clique na linha segue abrindo o
+   // drawer com o mouse; pelo teclado, o alvo e o botao do nome do militar.
    return (
       <TableRow
          onClick={() => onClick(item)}
-         onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-               // Espaço rolaria a página; prevenimos e acionamos a linha.
-               e.preventDefault();
-               onClick(item);
-            }
-         }}
-         tabIndex={0}
-         role="button"
-         className="cursor-pointer border-b border-slate-200 transition-colors hover:bg-gray-50"
+         className={clsx(
+            "cursor-pointer border-b border-slate-200 transition-colors",
+            // O hover fica nos dois ramos: `hover:bg-gray-50` na base vence o
+            // fundo da selecao, e a linha recem-marcada (com o mouse em cima)
+            // parecia desmarcada. `clsx` nao faz merge do Tailwind.
+            checked
+               ? "bg-primary-50/60 hover:bg-primary-50"
+               : "hover:bg-gray-50"
+         )}
       >
          {/* Farol da linha (pior status entre as datas preenchidas — antes
              espelhava só o CEMAL e ficava verde com o IMAE vencido) como
@@ -186,12 +194,31 @@ const CartoesSaudeRow = memo(function CartoesSaudeRow({
          >
             <span className="sr-only">{`Situação: ${statusLabel}`}</span>
          </TableCell>
+         {/* `stopPropagation`: marcar para exportar nao abre o drawer. A
+             `<label>` ocupa a celula inteira, para a sobra em volta do
+             quadrinho tambem marcar em vez de ser area morta. */}
+         <TableCell className="w-10 p-0" onClick={(e) => e.stopPropagation()}>
+            <label className="flex cursor-pointer items-center px-3 py-2">
+               <Checkbox
+                  color="primary"
+                  checked={checked}
+                  onChange={() => onToggle(item)}
+                  aria-label={`Selecionar ${item.user.posto.short} ${item.user.nome_guerra}`}
+               />
+            </label>
+         </TableCell>
          <TableCell
             className={clsx(CELL, "font-medium text-gray-900 uppercase")}
          >
-            <p className="font-semibold">
+            {/* `w-full`: com 72px ou mais o alvo conta como faixa e so deve
+                20px de altura — 24px engordaria todas as linhas. */}
+            <button
+               type="button"
+               aria-haspopup="dialog"
+               className="min-h-[20px] w-full text-left font-semibold uppercase"
+            >
                {item.user.posto.short} {item.user.nome_guerra}
-            </p>
+            </button>
          </TableCell>
          <TableCell
             className={clsx(
@@ -229,6 +256,15 @@ interface CartoesSaudeTableProps {
    onRowClick: (item: UserCartaoSaude) => void;
    hasActiveFilters: boolean;
    searchTerm: string;
+   /**
+    * Funcoes do carrinho, soltas e nao o objeto: `useExportCart` devolve um
+    * objeto novo a cada render. Todas sao estaveis, exceto `has`, que muda so
+    * quando a selecao muda.
+    */
+   isSelected: ExportCart<UserCartaoSaude>["has"];
+   onToggle: ExportCart<UserCartaoSaude>["toggle"];
+   onSelectMany: ExportCart<UserCartaoSaude>["addMany"];
+   onUnselectMany: ExportCart<UserCartaoSaude>["removeMany"];
 }
 
 export default function CartoesSaudeTable({
@@ -239,6 +275,10 @@ export default function CartoesSaudeTable({
    onRowClick,
    hasActiveFilters,
    searchTerm,
+   isSelected,
+   onToggle,
+   onSelectMany,
+   onUnselectMany,
 }: CartoesSaudeTableProps) {
    if (data.length === 0) {
       return (
@@ -248,6 +288,16 @@ export default function CartoesSaudeTable({
          />
       );
    }
+
+   // Sem paginacao, o checkbox do cabecalho tem escopo da lista FILTRADA
+   // inteira: filtrar "CEMAL vencido" e marcar todos vira um clique.
+   const ids = data.map((item) => item.user.id);
+   const selected = ids.filter((id) => isSelected(id)).length;
+   const all = selected === data.length;
+   const toggleAll = () => {
+      if (all) onUnselectMany(ids);
+      else onSelectMany(data);
+   };
 
    return (
       // Rolagem livre na página: sem teto de altura e sem cabeçalho fixo, a
@@ -260,6 +310,22 @@ export default function CartoesSaudeTable({
                <TableRow>
                   <TableHeadCell className="w-1 p-0">
                      <span className="sr-only">Situação</span>
+                  </TableHeadCell>
+                  <TableHeadCell className="w-10 px-3 py-2">
+                     <Checkbox
+                        color="primary"
+                        checked={all}
+                        ref={(el) => {
+                           // Estado indeterminado: parte da lista marcada.
+                           if (el) el.indeterminate = selected > 0 && !all;
+                        }}
+                        onChange={toggleAll}
+                        aria-label={
+                           all
+                              ? "Desmarcar todos da lista"
+                              : "Selecionar todos da lista"
+                        }
+                     />
                   </TableHeadCell>
                   <SortableHeader
                      label="Militar"
@@ -304,6 +370,8 @@ export default function CartoesSaudeTable({
                      key={item.user.id}
                      item={item}
                      onClick={onRowClick}
+                     checked={isSelected(item.user.id)}
+                     onToggle={onToggle}
                   />
                ))}
             </TableBody>

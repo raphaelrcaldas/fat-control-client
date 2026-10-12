@@ -31,14 +31,24 @@ import CartoesSaudeCardListSkeleton from "./components/CartoesSaudeCardListSkele
 import EditCartaoDrawer from "./components/EditCartaoDrawer";
 import OrfaosAlert from "./components/OrfaosAlert";
 import { PermBased } from "../../hooks/usePermBased";
+import { useExportCart } from "@/components/export/useExportCart";
+import { ExportCartBar } from "@/components/export/ExportCartBar";
+import { ExportCartDrawer } from "@/components/export/ExportCartDrawer";
+import { ExportColumnsModal } from "@/components/export/ExportColumnsModal";
+import { CARTOES_SAUDE_EXPORT_COLUMNS } from "./exportColumns";
+
+// Fora do componente: identidade estavel, para o `toggle` do carrinho nao
+// mudar a cada render e derrubar o `memo` das linhas.
+const getUserId = (item: UserCartaoSaude) => item.user.id;
+const getCartLabel = (item: UserCartaoSaude) =>
+   `${item.user.posto.short} ${item.user.nome_guerra}`;
+const NOUN = { one: "militar", many: "militares" };
 
 // Helper: parse comma-separated URL param into array
 function parseCommaSeparated(value: string | null): string[] {
    if (!value) return [];
    return value.split(",").filter(Boolean);
 }
-
-const TRIP_VALUES: TripFilter[] = ["all", "trip", "naoTrip"];
 
 export default function CartoesSaudePage() {
    const searchParams = useSearchParams();
@@ -50,12 +60,16 @@ export default function CartoesSaudePage() {
    const filterFunc = parseCommaSeparated(searchParams.get("func"));
    // Validados contra os valores conhecidos: `?status=xyz` na URL deixava a
    // tabela vazia enquanto o seletor continuava exibindo "Todos".
+   // O padrao e "Tripulantes", e o padrao nao vai para a URL: "Todos" e que
+   // precisa ser explicito (`?trip=todos`) — o `updateParams` apaga "all".
+   // Qualquer outro valor cai no padrao.
    const tripParamRaw = searchParams.get("trip");
-   const tripFilter: TripFilter = TRIP_VALUES.includes(
-      tripParamRaw as TripFilter
-   )
-      ? (tripParamRaw as TripFilter)
-      : "all";
+   const tripFilter: TripFilter =
+      tripParamRaw === "todos"
+         ? "all"
+         : tripParamRaw === "naoTrip"
+           ? "naoTrip"
+           : "trip";
 
    // O recorte de validade só existe com os dois lados válidos: um status
    // sem documento (ou vice-versa) não descreve nada, então cai em "all".
@@ -208,10 +222,10 @@ export default function CartoesSaudePage() {
 
    const handleTripFilterChange = useCallback(
       (value: TripFilter) => {
+         const trip =
+            value === "all" ? "todos" : value === "naoTrip" ? value : undefined;
          updateParams(
-            value === "naoTrip"
-               ? { trip: value, func: undefined }
-               : { trip: value }
+            value === "naoTrip" ? { trip, func: undefined } : { trip }
          );
       },
       [updateParams]
@@ -267,11 +281,32 @@ export default function CartoesSaudePage() {
       setSelectedUserId(null);
    };
 
+   // Carrinho de exportacao. A planilha sai so do que a listagem ja traz —
+   // sem hidratacao por `POST /users/export`, porque nenhuma coluna de PII e
+   // oferecida aqui.
+   const cart = useExportCart<UserCartaoSaude>(getUserId);
+   const [showCartDrawer, setShowCartDrawer] = useState(false);
+   const [showExportModal, setShowExportModal] = useState(false);
+
+   // O carrinho guarda o retrato do clique; um cartao editado depois sairia
+   // com a validade antiga. Na hora de exportar, cada item e trocado pela
+   // linha atual da listagem — o retrato so fica para quem saiu dela (busca,
+   // P/G, funcao e tripulante sao server-side).
+   const exportRows = useMemo(() => {
+      const atual = new Map(cartoesSaude.map((c) => [c.user.id, c]));
+      return cart.items.map((item) => atual.get(item.user.id) ?? item);
+   }, [cart.items, cartoesSaude]);
+
+   // O que esta marcado e o filtro esconde: sem isso, o contador da barra
+   // parece nao bater com a lista.
+   const selectedOffView =
+      cart.count - sortedData.filter((item) => cart.has(item.user.id)).length;
+
    const hasActiveFilters =
       !!urlSearch ||
       filterPG.length > 0 ||
       filterFunc.length > 0 ||
-      tripFilter !== "all" ||
+      tripFilter !== "trip" ||
       validadeFilter.tipo !== "all" ||
       semAta;
 
@@ -327,7 +362,17 @@ export default function CartoesSaudePage() {
    }, [cartoesSaude]);
 
    return (
-      <div className="flex flex-col space-y-2">
+      // `md:pb-24` reservado SEMPRE a partir de `md` (onde a tabela, e com ela
+      // a selecao, aparece): condicional, marcar o primeiro militar
+      // empurraria a pagina inteira para cima. Abaixo de `md` so com carrinho
+      // cheio — selecao feita na tabela que sobrevive ao celular girar para
+      // retrato; ali nao ha como marcar, entao nao ha salto.
+      <div
+         className={clsx(
+            "flex flex-col space-y-2 md:pb-24",
+            !cart.isEmpty && "pb-24"
+         )}
+      >
          {/* Masthead */}
          <header className="relative overflow-hidden rounded border border-slate-200 bg-white px-5 py-4 shadow-sm sm:px-6 sm:py-5">
             <span
@@ -474,6 +519,18 @@ export default function CartoesSaudePage() {
                            searchTerm={urlSearch}
                         />
                      </div>
+                     {/* Regiao viva sempre montada: leitor de tela nao anuncia
+                         `role="status"` que ja nasce com o texto. */}
+                     <div role="status" className="hidden md:block">
+                        {selectedOffView > 0 && (
+                           <p className="px-4 py-2 text-xs text-slate-500">
+                              {selectedOffView}{" "}
+                              {selectedOffView === 1
+                                 ? "selecionado fora do filtro atual"
+                                 : "selecionados fora do filtro atual"}
+                           </p>
+                        )}
+                     </div>
                      <div className="hidden md:block">
                         <CartoesSaudeTable
                            data={sortedData}
@@ -483,12 +540,60 @@ export default function CartoesSaudePage() {
                            onRowClick={handleRowClick}
                            hasActiveFilters={hasActiveFilters}
                            searchTerm={urlSearch}
+                           isSelected={cart.has}
+                           onToggle={cart.toggle}
+                           onSelectMany={cart.addMany}
+                           onUnselectMany={cart.removeMany}
                         />
                      </div>
                   </div>
                </>
             )}
          </div>
+
+         {/* `desktopOnly={false}`: a tabela (e a selecao) aparece ja em `md`,
+             abaixo do `lg` padrao da barra. Nos cards nao ha checkbox; a barra
+             so aparece abaixo de `md` se a selecao veio da tabela (aparelho
+             girado), e por isso continua la para revisar ou exportar. */}
+         <ExportCartBar
+            cart={cart}
+            getId={getUserId}
+            getLabel={getCartLabel}
+            onReview={() => setShowCartDrawer(true)}
+            onExport={() => setShowExportModal(true)}
+            noun={NOUN}
+            desktopOnly={false}
+            // Some tambem com o drawer de edicao aberto: por baixo do backdrop
+            // ela ficaria escurecida e alcancavel pelo Tab.
+            hidden={showCartDrawer || showExportModal || showDrawer}
+         />
+
+         <ExportCartDrawer
+            show={showCartDrawer}
+            onClose={() => setShowCartDrawer(false)}
+            cart={cart}
+            getId={getUserId}
+            getLabel={(item) => ({
+               primary: getCartLabel(item),
+               secondary: item.user.nome_completo ?? undefined,
+            })}
+            onExport={() => {
+               setShowCartDrawer(false);
+               setShowExportModal(true);
+            }}
+            title="Militares selecionados"
+            noun={NOUN}
+         />
+
+         <ExportColumnsModal
+            show={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            rows={exportRows}
+            columns={CARTOES_SAUDE_EXPORT_COLUMNS}
+            storageKey="export:cartoes-saude:columns"
+            fileBaseName="cartoes_saude"
+            sheetName="Cartões de Saúde"
+         />
 
          {/* Edit Drawer */}
          {showDrawer && selectedItem && (

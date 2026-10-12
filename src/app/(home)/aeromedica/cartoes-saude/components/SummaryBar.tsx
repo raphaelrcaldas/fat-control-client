@@ -55,16 +55,19 @@ const CounterButton = memo(function CounterButton({
          onClick={() => onToggle(status)}
          title={`${nome} — clique para filtrar`}
          className={clsx(
-            "rounded border px-2 py-1 text-left transition-colors",
+            "flex flex-col rounded border px-2 py-1 text-left transition-colors",
             active
                ? clsx(cfg.bg, cfg.border, "shadow-sm")
                : "border-slate-200 bg-white hover:bg-gray-50"
          )}
       >
-         <span className="flex items-baseline justify-between gap-1">
+         {/* `flex-wrap` em vez de `truncate`: sem largura, o número desce
+             para baixo do rótulo — "ATEN… 10" escondia o status. O rótulo
+             fica numa linha só (`nowrap`), para "SEM DATA" não partir. */}
+         <span className="mb-1 flex flex-wrap items-baseline justify-between gap-x-1">
             <span
                className={clsx(
-                  "truncate text-[9px] font-semibold tracking-widest uppercase",
+                  "text-[9px] font-semibold tracking-widest whitespace-nowrap uppercase",
                   cfg.color
                )}
             >
@@ -76,7 +79,9 @@ const CounterButton = memo(function CounterButton({
                {count}
             </span>
          </span>
-         <span className="mt-1 block h-1 w-full overflow-hidden rounded-full bg-gray-200">
+         {/* `mt-auto`: com a quebra, contadores vizinhos tem alturas de
+             texto diferentes; a barra assenta no fundo e a fileira alinha. */}
+         <span className="mt-auto block h-1 w-full overflow-hidden rounded-full bg-gray-200">
             <span
                className={clsx("block h-full rounded-full", cfg.dot)}
                style={{ width: `${pct}%` }}
@@ -116,8 +121,11 @@ function DocSummary({
       // direita). De `lg` para cima os três blocos ficam lado a lado, e aí a
       // identidade sobe para cima dos contadores: ao lado, sobrariam ~54px
       // por contador e o rótulo não caberia.
+      // Abaixo de `sm` a identidade vira coluna estreita (ícone sobre a
+      // sigla) e a cobertura some: a largura vai para os contadores, que
+      // truncavam o rótulo ("VEN…").
       <div className="flex flex-1 items-center gap-3 p-2.5 lg:flex-col lg:items-stretch lg:gap-2">
-         <div className="flex w-28 shrink-0 items-center gap-2 sm:w-44 lg:w-auto">
+         <div className="flex w-14 shrink-0 flex-col items-center gap-1 sm:w-44 sm:flex-row sm:gap-2 lg:w-auto">
             <span
                className={clsx(
                   "grid h-8 w-8 shrink-0 place-items-center rounded-md",
@@ -126,7 +134,7 @@ function DocSummary({
             >
                <Icon className={clsx("h-4 w-4", iconColor)} />
             </span>
-            <span className="min-w-0">
+            <span className="max-w-full min-w-0 text-center sm:text-left">
                <span
                   className="block truncate text-sm font-bold text-gray-800"
                   title={nome}
@@ -135,7 +143,7 @@ function DocSummary({
                </span>
                {/* O "sem data" tem contador próprio; aqui a leitura é de
                    cobertura — quantos do efetivo já têm a data lançada. */}
-               <span className="block text-[11px] whitespace-nowrap text-gray-500 tabular-nums">
+               <span className="hidden text-[11px] whitespace-nowrap text-gray-500 tabular-nums sm:block">
                   {stats.total} de {stats.efetivo} com data
                </span>
             </span>

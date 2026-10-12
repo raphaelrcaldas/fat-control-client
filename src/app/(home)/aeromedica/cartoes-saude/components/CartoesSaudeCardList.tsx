@@ -1,41 +1,38 @@
 "use client";
 
 import { memo } from "react";
-import { MdAttachFile, MdErrorOutline } from "react-icons/md";
 import clsx from "clsx";
+import { isoDateToString } from "@/../utils/dateHandler";
 import type { UserCartaoSaude } from "services/routes/aeromedica/cartoesSaude";
 import {
    getDateStatus,
    getStatusConfig,
-   formatDate,
    getWorstStatus,
 } from "../utils/dateStatus";
 import EmptyState from "./EmptyState";
 
 // ========================================
-// DocLine
+// DocItem
 // ========================================
 
-/** Uma linha "documento: validade" — o que a tabela mostra em colunas, aqui
- *  empilhado para caber em 390px sem rolagem lateral. */
-const DocLine = memo(function DocLine({
+/** "documento ✓ validade" — o que a tabela mostra em colunas, aqui os três
+ *  numa linha só do card. A data vai em DD/MM/AA: com o ano inteiro os três
+ *  nao cabem em 360px. */
+const DocItem = memo(function DocItem({
    tag,
    dateStr,
-   children,
 }: {
    tag: string;
    dateStr: string | null | undefined;
-   children?: React.ReactNode;
 }) {
    const status = getDateStatus(dateStr);
    const cfg = getStatusConfig(status);
    const Icon = cfg.icon;
 
    return (
-      <div className="flex items-center gap-1.5 font-mono text-xs">
-         <span className="w-12 shrink-0 font-bold tracking-wide text-slate-400">
-            {tag}
-         </span>
+      <span className="flex items-center gap-1 font-mono text-xs whitespace-nowrap">
+         {/* slate-500, não 400: o 400 reprova contraste AA sobre branco. */}
+         <span className="font-bold tracking-wide text-slate-500">{tag}</span>
          <span
             className={clsx(
                "flex items-center gap-1 font-medium tabular-nums",
@@ -43,10 +40,9 @@ const DocLine = memo(function DocLine({
             )}
          >
             <Icon className="h-3 w-3 shrink-0" />
-            {formatDate(dateStr)}
+            {dateStr ? isoDateToString(dateStr) : "—"}
          </span>
-         {children}
-      </div>
+      </span>
    );
 });
 
@@ -88,26 +84,16 @@ const CartaoCard = memo(function CartaoCard({
                   {item.cartao?.prontuario ?? "—"}
                </span>
             </div>
-            <DocLine tag="CEMAL" dateStr={item.cartao?.cemal}>
-               {item.cemal_tem_ata === false && (
-                  <span
-                     className="flex items-center gap-0.5 text-amber-700"
-                     title="Sem ata anexada"
-                  >
-                     <MdErrorOutline className="h-3 w-3" aria-hidden />
-                     <span className="sr-only">Sem ata anexada</span>
-                  </span>
-               )}
-               {item.cemal_tem_ata === true && (
-                  <MdAttachFile
-                     className="h-3 w-3 text-slate-400"
-                     title="Ata anexada"
-                     aria-label="Ata anexada"
-                  />
-               )}
-            </DocLine>
-            <DocLine tag="IMAE" dateStr={item.cartao?.imae} />
-            <DocLine tag="TOVN" dateStr={item.cartao?.tovn} />
+            {/* Os três documentos numa linha. A ata não aparece no card: o
+                aviso fica na tabela e no drawer, e o filtro "Sem ata"
+                continua valendo no celular. Cabe a partir de ~340px (medido
+                em 360 e 412); o `flex-wrap` só age abaixo disso, onde o
+                `overflow-hidden` do card cortaria a data do TOVN. */}
+            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
+               <DocItem tag="CEMAL" dateStr={item.cartao?.cemal} />
+               <DocItem tag="IMAE" dateStr={item.cartao?.imae} />
+               <DocItem tag="TOVN" dateStr={item.cartao?.tovn} />
+            </div>
          </div>
       </div>
    );

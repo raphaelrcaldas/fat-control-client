@@ -45,6 +45,9 @@ function FilterButton({
          size="xs"
          color={active ? "primary" : "light"}
          onClick={onClick}
+         // `h-auto`: sem o `h-8` do xs (28px), o botao estica ate a altura
+         // do trilho (`items-stretch`), que e a dos inputs.
+         className="h-auto"
       >
          <span className="flex items-center gap-1.5">
             {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -115,7 +118,8 @@ export default function Filters({
    const activeCount =
       filterPG.length +
       filterFunc.length +
-      (tripFilter !== "all" ? 1 : 0) +
+      // "Tripulantes" e o padrao da tela; so conta quem se afastou dele.
+      (tripFilter !== "trip" ? 1 : 0) +
       (semAta ? 1 : 0);
 
    return (
@@ -139,7 +143,10 @@ export default function Filters({
                   onClick={() => setShowFilters((v) => !v)}
                   aria-expanded={showFilters}
                   aria-controls="cartoes-filtros"
-                  className="shrink-0 md:hidden"
+                  // `h-auto`: estica ate a altura da busca. O `h-10` do Button
+                  // md conta a borda por dentro e o TextInput md por fora —
+                  // lado a lado, o botao ficava 1,5px mais baixo.
+                  className="h-auto shrink-0 md:hidden"
                >
                   <span className="flex items-center gap-1.5">
                      <MdFilterList className="h-4 w-4" />
@@ -156,28 +163,44 @@ export default function Filters({
                   showFilters ? "flex" : "hidden"
                )}
             >
-               <MultiSelect
-                  disabled={isLoading}
-                  options={PG_OPTIONS}
-                  selected={filterPG}
-                  onChange={onFilterPGChange}
-                  placeholder="P/G"
-                  className="md:w-44"
-               />
+               {/* P/G e Função lado a lado no painel do celular: um por
+                   linha gastava duas alturas de input para dois selects
+                   curtos. De `md` para cima, `contents` devolve cada um à
+                   linha de filtros. */}
+               <div className="grid grid-cols-2 gap-3 md:contents">
+                  <MultiSelect
+                     disabled={isLoading}
+                     options={PG_OPTIONS}
+                     selected={filterPG}
+                     onChange={onFilterPGChange}
+                     placeholder="P/G"
+                     className="min-w-0 md:w-44"
+                  />
 
-               <MultiSelect
-                  disabled={isLoading}
-                  options={funcOptions}
-                  selected={filterFunc}
-                  onChange={onFilterFuncChange}
-                  placeholder="Função"
-                  className="md:w-44"
-               />
+                  <MultiSelect
+                     disabled={isLoading}
+                     options={funcOptions}
+                     selected={filterFunc}
+                     onChange={onFilterFuncChange}
+                     placeholder="Função"
+                     className="min-w-0 md:w-44"
+                  />
+               </div>
 
-               <div className="flex flex-wrap items-center gap-2">
+               {/* Trilho e "Sem ata" tem a altura dos inputs `md` em qualquer
+                   largura — dividindo a linha com eles ou quebrando para a
+                   proxima. A conta e a do TextInput md: `p-2.5` + linha
+                   `text-sm` = 2.5rem, mais a borda. `box-content` deixa a borda
+                   FORA do minimo, arredondada pelo navegador igual a do input
+                   (em tela com escala, 1px vira 0,73px — um `+2px` cravado
+                   sobrava meio pixel). Em rem, para acompanhar o tamanho de
+                   fonte do navegador como o input acompanha. O `!` e porque o
+                   `* { box-sizing: border-box }` do `global.css` esta fora de
+                   `@layer` e venceria o utilitario. */}
+               <div className="flex flex-wrap items-stretch gap-2">
                   {/* Tripulante — abaixo de 430px os ícones saem (os rótulos
                       já dizem tudo). */}
-                  <div className="flex items-center gap-1 rounded border border-slate-200 bg-white p-0.5 max-[430px]:[&_svg]:hidden">
+                  <div className="box-content! flex min-h-[2.25rem] items-stretch gap-1 rounded border border-slate-200 bg-white p-0.5 max-[430px]:[&_svg]:hidden">
                      <FilterButton
                         disabled={isLoading}
                         active={tripFilter === "all"}
@@ -211,6 +234,7 @@ export default function Filters({
                      type="button"
                      size="xs"
                      color={semAta ? "primary" : "light"}
+                     className="box-content! h-auto min-h-[2.5rem]"
                      aria-pressed={semAta}
                      onClick={() => onSemAtaChange(!semAta)}
                   >
