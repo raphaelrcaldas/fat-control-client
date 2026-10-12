@@ -9,6 +9,7 @@ import {
    TableRow,
    TableCell,
    Button,
+   Checkbox,
 } from "flowbite-react";
 import { HiChevronUp, HiChevronDown, HiPhotograph } from "react-icons/hi";
 import { FaPassport } from "react-icons/fa";
@@ -17,6 +18,7 @@ import type {
    TripPassaporteOut,
    StatusPassaporte,
 } from "services/routes/inteligencia/passaportes";
+import type { ExportCart } from "@/components/export/useExportCart";
 import type { SortField, SortDirection } from "../types";
 import {
    getDateStatus,
@@ -197,9 +199,13 @@ const SortableHeader = memo(function SortableHeader({
 const PassaporteRow = memo(function PassaporteRow({
    item,
    onClick,
+   checked,
+   onToggle,
 }: {
    item: TripPassaporteOut;
    onClick: (item: TripPassaporteOut) => void;
+   checked: boolean;
+   onToggle: (item: TripPassaporteOut) => void;
 }) {
    const worst = getWorstStatus(
       item.passaporte?.validade_passaporte,
@@ -207,28 +213,45 @@ const PassaporteRow = memo(function PassaporteRow({
    );
    const config = getStatusConfig(worst);
 
+   // A linha nao e mais `role="button"`: botao nao pode conter o checkbox de
+   // selecao (axe `nested-interactive`). O clique na linha segue abrindo o
+   // modal com o mouse; pelo teclado, o alvo e o botao do nome do militar.
    return (
       <TableRow
          onClick={() => onClick(item)}
-         onKeyDown={(e) => {
-            if (e.key !== "Enter" && e.key !== " ") return;
-            // Espaço rola a página se o default não for barrado.
-            e.preventDefault();
-            onClick(item);
-         }}
-         tabIndex={0}
-         role="button"
-         className="hover:bg-primary-50 cursor-pointer border-b border-slate-200 font-mono transition-colors"
+         className={clsx(
+            "hover:bg-primary-50 cursor-pointer border-b border-slate-200 font-mono transition-colors",
+            checked && "bg-primary-50/60"
+         )}
       >
          {/* Pior status da linha como faixa na borda: mesmo sinal do antigo
              ponto, sem gastar uma coluna com ele. */}
          <TableCell className={clsx("w-1 p-0", config.dot)}>
             <span className="sr-only">{`Status: ${config.label}`}</span>
          </TableCell>
+         {/* `stopPropagation`: marcar para exportar nao abre a edicao. A
+             `<label>` ocupa a celula inteira, para a sobra em volta do
+             quadrinho tambem marcar em vez de ser area morta. */}
+         <TableCell className="w-10 p-0" onClick={(e) => e.stopPropagation()}>
+            <label className="flex cursor-pointer items-center px-3 py-2">
+               <Checkbox
+                  color="primary"
+                  checked={checked}
+                  onChange={() => onToggle(item)}
+                  aria-label={`Selecionar ${item.p_g} ${item.nome_guerra}`}
+               />
+            </label>
+         </TableCell>
          <TableCell className="px-4 py-2 font-medium whitespace-nowrap text-gray-900 uppercase">
-            <p className="font-semibold">
+            {/* `w-full`: com 72px ou mais o alvo conta como faixa e so deve
+                20px de altura — 24px engordava todas as linhas. */}
+            <button
+               type="button"
+               aria-haspopup="dialog"
+               className="min-h-[20px] w-full text-left font-semibold uppercase"
+            >
                {item.p_g} {item.nome_guerra}
-            </p>
+            </button>
          </TableCell>
          <TableCell className="px-4 py-2 whitespace-nowrap">
             <StatusCell status={item.passaporte?.status_passaporte} />
@@ -267,6 +290,15 @@ interface PassaportesTableProps {
    onRowClick: (item: TripPassaporteOut) => void;
    hasActiveFilters: boolean;
    onClearFilters: () => void;
+   /**
+    * Funcoes do carrinho, soltas e nao o objeto: `useExportCart` devolve um
+    * objeto novo a cada render, o que anularia o `memo` da tabela. Todas sao
+    * estaveis, exceto `has`, que muda so quando a selecao muda.
+    */
+   isSelected: ExportCart<TripPassaporteOut>["has"];
+   onToggle: ExportCart<TripPassaporteOut>["toggle"];
+   onSelectMany: ExportCart<TripPassaporteOut>["addMany"];
+   onUnselectMany: ExportCart<TripPassaporteOut>["removeMany"];
 }
 
 const PassaportesTable = memo(function PassaportesTable({
@@ -277,6 +309,10 @@ const PassaportesTable = memo(function PassaportesTable({
    onRowClick,
    hasActiveFilters,
    onClearFilters,
+   isSelected,
+   onToggle,
+   onSelectMany,
+   onUnselectMany,
 }: PassaportesTableProps) {
    if (data.length === 0) {
       return (
@@ -299,6 +335,16 @@ const PassaportesTable = memo(function PassaportesTable({
       );
    }
 
+   // Sem paginacao, o checkbox do cabecalho tem escopo da lista FILTRADA
+   // inteira: filtrar "vencidos" e marcar todos vira um clique.
+   const ids = data.map((item) => item.trip_id);
+   const selected = ids.filter((id) => isSelected(id)).length;
+   const all = selected === data.length;
+   const toggleAll = () => {
+      if (all) onUnselectMany(ids);
+      else onSelectMany(data);
+   };
+
    return (
       <div className="overflow-x-auto">
          <Table hoverable>
@@ -306,6 +352,22 @@ const PassaportesTable = memo(function PassaportesTable({
                <TableRow>
                   <TableHeadCell className="w-1 p-0">
                      <span className="sr-only">Status</span>
+                  </TableHeadCell>
+                  <TableHeadCell className="w-10 px-3 py-2">
+                     <Checkbox
+                        color="primary"
+                        checked={all}
+                        ref={(el) => {
+                           // Estado indeterminado: parte da lista marcada.
+                           if (el) el.indeterminate = selected > 0 && !all;
+                        }}
+                        onChange={toggleAll}
+                        aria-label={
+                           all
+                              ? "Desmarcar todos da lista"
+                              : "Selecionar todos da lista"
+                        }
+                     />
                   </TableHeadCell>
                   <SortableHeader
                      label="Militar"
@@ -349,6 +411,8 @@ const PassaportesTable = memo(function PassaportesTable({
                      key={item.trip_id}
                      item={item}
                      onClick={onRowClick}
+                     checked={isSelected(item.trip_id)}
+                     onToggle={onToggle}
                   />
                ))}
             </TableBody>

@@ -10,7 +10,8 @@ import {
    TableCell,
 } from "flowbite-react";
 
-// Larguras dos blocos por coluna de dados (a 1ª coluna é a faixa de status):
+// Larguras dos blocos por coluna de dados (antes delas, a faixa de status e o
+// checkbox de seleção):
 // militar, status, nº e validade do passaporte, nº e validade do visto.
 const BAR_WIDTHS = ["w-40", "w-32", "w-24", "w-32", "w-24", "w-32"] as const;
 
@@ -26,6 +27,9 @@ export default function PassaportesTableSkeleton({
             <TableHead className="border-b border-slate-200 bg-gray-50 text-xs text-gray-700 uppercase">
                <TableRow>
                   <TableHeadCell className="w-1 p-0" />
+                  <TableHeadCell className="w-10 px-3 py-2">
+                     <div className="h-[20px] w-[20px] animate-pulse rounded bg-slate-200" />
+                  </TableHeadCell>
                   {BAR_WIDTHS.map((w, i) => (
                      <TableHeadCell key={i} className="px-4 py-2">
                         <div
@@ -39,6 +43,9 @@ export default function PassaportesTableSkeleton({
                {Array.from({ length: rows }).map((_, r) => (
                   <TableRow key={r} className="border-b border-slate-200">
                      <TableCell className="w-1 animate-pulse bg-slate-200 p-0" />
+                     <TableCell className="w-10 px-3 py-2">
+                        <div className="h-[20px] w-[20px] animate-pulse rounded bg-slate-200" />
+                     </TableCell>
                      {BAR_WIDTHS.map((w, c) => (
                         <TableCell key={c} className="px-4 py-2">
                            <div
