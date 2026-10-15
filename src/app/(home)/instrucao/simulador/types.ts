@@ -1,6 +1,6 @@
 import type { EtapaItem } from "services/routes/estatistica/etapas";
 
-export const MAX_PILOTOS = 2;
+export const MAX_PILOTOS = 1;
 export const SIM_ANV = "2850";
 
 /**

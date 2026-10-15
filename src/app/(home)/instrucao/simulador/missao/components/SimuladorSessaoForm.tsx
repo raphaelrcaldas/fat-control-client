@@ -57,7 +57,6 @@ export function SimuladorSessaoForm({
                   pilots={form.sessionPilots}
                   onAdd={form.addPilot}
                   onRemove={form.removePilot}
-                  onUpdateFuncBordo={form.updateFuncBordo}
                   showSearch
                />
             </div>

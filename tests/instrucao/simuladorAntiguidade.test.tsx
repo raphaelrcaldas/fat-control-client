@@ -52,22 +52,20 @@ describe("antiguidade no simulador", () => {
       expect(collectPilotos(etapas).map((p) => p.trip_id)).toEqual([9, 1]);
       expect(collectPilotos(etapas)[0].ant).toBe(1);
    });
-   it("exibe o piloto mais antigo primeiro no formulário sem mudar a função a bordo", () => {
+   it("exibe pilotos por antiguidade e fixa a função a bordo em 1P", () => {
       render(
          <PilotSearchDropdown
             pilots={[piloto(1, 4), { ...piloto(9, 1), func_bordo: "2P" }]}
             showSearch
             onAdd={vi.fn()}
             onRemove={vi.fn()}
-            onUpdateFuncBordo={vi.fn()}
          />
       );
-      const fields = screen.getAllByRole<HTMLSelectElement>("combobox");
-      expect(fields.map((field) => field.getAttribute("aria-label"))).toEqual([
-         "Função a bordo de CAP PILOTO 9",
-         "Função a bordo de CAP PILOTO 1",
-      ]);
-      expect(fields[0].value).toBe("2P");
+      expect(screen.getAllByText("1P")).toHaveLength(2);
+      expect(
+         screen.getAllByText(/Piloto [91]/).map((el) => el.textContent)
+      ).toEqual(["CAP Piloto 9", "CAP Piloto 1"]);
+      expect(screen.queryByRole("combobox")).toBeNull();
    });
    it("ordena os nomes da dupla sem alterar a ordem da listagem por data", () => {
       mocks.data = [

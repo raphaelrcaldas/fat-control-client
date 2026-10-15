@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { Select } from "flowbite-react";
 import { HiX } from "react-icons/hi";
 import { MAX_PILOTOS, type DuplaPilot, type CrewSearchResult } from "../types";
 import PilotSearchInput from "./PilotSearchInput";
@@ -11,7 +10,6 @@ interface PilotSearchDropdownProps {
    pilots: DuplaPilot[];
    onAdd: (crew: CrewSearchResult) => void;
    onRemove: (tripId: number) => void;
-   onUpdateFuncBordo: (tripId: number, fb: string) => void;
    showSearch: boolean;
 }
 
@@ -19,7 +17,6 @@ export default function PilotSearchDropdown({
    pilots,
    onAdd,
    onRemove,
-   onUpdateFuncBordo,
    showSearch,
 }: PilotSearchDropdownProps) {
    const assignedIds = useMemo(
@@ -49,20 +46,9 @@ export default function PilotSearchDropdown({
                         {p.p_g} {p.nome_guerra}
                      </p>
                   </div>
-                  <Select
-                     sizing="sm"
-                     value={p.func_bordo}
-                     onChange={(e) =>
-                        onUpdateFuncBordo(p.trip_id, e.target.value)
-                     }
-                     aria-label={`Função a bordo de ${`${p.p_g} ${p.nome_guerra}`.toUpperCase()}`}
-                     className="w-20"
-                  >
-                     <option value="1P">1P</option>
-                     <option value="2P">2P</option>
-                     <option value="IN">IN</option>
-                     <option value="AL">AL</option>
-                  </Select>
+                  <span className="border-primary-200 text-primary-700 rounded border bg-white px-2 py-1 text-xs font-semibold">
+                     1P
+                  </span>
                   {showSearch && (
                      <button
                         type="button"

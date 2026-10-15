@@ -148,7 +148,7 @@ export function NovaMissaoSimulador({ anoRef }: NovaMissaoSimuladorProps) {
                      <div className="space-y-3 rounded border border-slate-200 bg-white p-4 shadow-sm">
                         <div className="flex items-center justify-between gap-3">
                            <h2 className="text-sm font-semibold text-slate-800">
-                              Pilotos da dupla
+                              Piloto da sessão
                            </h2>
                            <span className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-600">
                               {form.sessionPilots.length} / {MAX_PILOTOS}
@@ -158,7 +158,6 @@ export function NovaMissaoSimulador({ anoRef }: NovaMissaoSimuladorProps) {
                            pilots={form.sessionPilots}
                            onAdd={form.addPilot}
                            onRemove={form.removePilot}
-                           onUpdateFuncBordo={form.updateFuncBordo}
                            showSearch
                         />
                      </div>

@@ -1,6 +1,13 @@
 import { createSimuladorEtapaForm } from "../helpers/simuladorEtapaForm";
 import { etapaFingerprint, reconcileDraft } from "../helpers/reconcileMissao";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+   useCallback,
+   useEffect,
+   useMemo,
+   useReducer,
+   useRef,
+   useState,
+} from "react";
 import { ApiError } from "services/Api";
 import { useToast } from "@/app/context/toast";
 import { useEsfAerList } from "@/hooks/queries/useEsfAer";
@@ -50,18 +57,38 @@ const BLOQUEIO_LABEL: Record<Bloqueio, string> = {
 /** DD/MM de uma data ISO, para os avisos ao usuário. */
 const diaMes = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 
+function normalizeSimulatorCrew(draft: MissaoDraft): MissaoDraft {
+   return {
+      ...draft,
+      etapas: draft.etapas.map((etapa) => ({
+         ...etapa,
+         assignedTrips: etapa.assignedTrips.map((trip) => ({
+            ...trip,
+            funcBordo: "1P",
+         })),
+      })),
+   };
+}
+
 export function useSimuladorMissaoDraft(
    missao: MissaoComEtapasDetail,
    initialEtapaId?: number
 ) {
-   const [draft, dispatch] = useReducer(simuladorReducer, missao, (initial) =>
-      buildDraftFromServer(
-         { ...initial, etapas: sortEtapas(initial.etapas) },
-         initialEtapaId
-      )
+   const initialDraft = useMemo(
+      () =>
+         buildDraftFromServer(
+            { ...missao, etapas: sortEtapas(missao.etapas) },
+            initialEtapaId
+         ),
+      [missao, initialEtapaId]
+   );
+   const [draft, dispatch] = useReducer(
+      simuladorReducer,
+      initialDraft,
+      normalizeSimulatorCrew
    );
    const [formVersion, setFormVersion] = useState(0);
-   const baseline = useRef(draft);
+   const baseline = useRef(initialDraft);
    const draftRef = useRef(draft);
    const update = useUpdateMissaoWithEtapas();
    const { push } = useToast();
@@ -201,8 +228,8 @@ export function useSimuladorMissaoDraft(
       )
          return "pousos";
       if (
-         etapa.assignedTrips.length === 0 ||
-         etapa.assignedTrips.length > MAX_PILOTOS
+         etapa.assignedTrips.length !== MAX_PILOTOS ||
+         etapa.assignedTrips[0]?.funcBordo !== "1P"
       )
          return "pilotos";
       if (!(etapa.oiItems[0]?.tipo_missao_id ?? tipos.data?.[0]?.id))

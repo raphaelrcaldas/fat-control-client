@@ -494,27 +494,49 @@ describe("rascunhos da missão de simulador", () => {
       );
    });
 
-   it("adiciona outro piloto a uma missão salva, filtra duplicados e respeita o limite", async () => {
+   it("não permite adicionar piloto quando a sessão já tem um 1P", () => {
       setup();
-      fireEvent.change(screen.getByRole("textbox", { name: "Buscar piloto" }), {
-         target: { value: "Piloto" },
-      });
-      const candidate = await screen.findByRole("button", { name: /Segundo/ });
-      expect(screen.queryByRole("button", { name: /\(ABC\)/ })).toBeNull();
-      fireEvent.click(candidate);
       expect(
          screen.queryByRole("textbox", { name: "Buscar piloto" })
       ).toBeNull();
-      selectCard(1);
-      selectCard(0);
-      expect(
-         screen.getByLabelText("Função a bordo de TEN SEGUNDO")
-      ).not.toBeNull();
+      expect(screen.getByText("1P")).not.toBeNull();
+   });
+
+   it("normaliza um único piloto legado para 1P ao salvar", async () => {
+      const legacy = etapa();
+      legacy.tripulantes[0].func_bordo = "2P";
+      setup(legacy);
+
+      expect(screen.getByText("1P")).not.toBeNull();
+      expect(saveButton().disabled).toBe(false);
       fireEvent.click(saveButton());
       await waitFor(() => expect(mocks.update).toHaveBeenCalledOnce());
       expect(mocks.update.mock.calls[0][0].data.update[0].tripulantes).toEqual([
          { trip_id: 1, func: "pil", func_bordo: "1P" },
-         { trip_id: 2, func: "pil", func_bordo: "2P" },
+      ]);
+   });
+
+   it("exige remover tripulantes excedentes da sessão legada antes de salvar", async () => {
+      const legacy = etapa();
+      legacy.tripulantes.push({
+         ...legacy.tripulantes[0],
+         trip_id: 2,
+         trig: "DEF",
+         nome_guerra: "Segundo",
+         p_g: "TEN",
+         func_bordo: "2P",
+      });
+      setup(legacy);
+
+      expect(saveButton().disabled).toBe(true);
+      fireEvent.click(
+         screen.getByRole("button", { name: "Remover TEN SEGUNDO" })
+      );
+      expect(saveButton().disabled).toBe(false);
+      fireEvent.click(saveButton());
+      await waitFor(() => expect(mocks.update).toHaveBeenCalledOnce());
+      expect(mocks.update.mock.calls[0][0].data.update[0].tripulantes).toEqual([
+         { trip_id: 1, func: "pil", func_bordo: "1P" },
       ]);
    });
 
@@ -525,9 +547,7 @@ describe("rascunhos da missão de simulador", () => {
       );
       selectCard(1);
       selectCard(0);
-      expect(
-         screen.queryByLabelText("Função a bordo de CAP PILOTO")
-      ).toBeNull();
+      expect(screen.queryByText("1P")).toBeNull();
       expect(saveButton().disabled).toBe(true);
    });
 

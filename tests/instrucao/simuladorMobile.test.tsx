@@ -17,7 +17,6 @@ const mocks = vi.hoisted(() => ({
    createMissaoWithEtapas: vi.fn(),
    onAdd: vi.fn(),
    onRemove: vi.fn(),
-   onUpdateFuncBordo: vi.fn(),
    replace: vi.fn(),
    push: vi.fn(),
    toast: vi.fn(),
@@ -96,6 +95,10 @@ describe("criação de dupla no celular", () => {
       });
       await act(async () => vi.advanceTimersByTimeAsync(300));
       fireEvent.click(screen.getByRole("button", { name: /CAP.*Silva/ }));
+      expect(screen.queryByRole("textbox", { name: "Buscar piloto" })).toBe(
+         null
+      );
+      expect(screen.getByText("1P")).not.toBeNull();
 
       for (const [label, value] of [
          ["Data", "2026-09-20"],
@@ -123,7 +126,7 @@ describe("criação de dupla no celular", () => {
 });
 
 describe("controles de tripulação", () => {
-   it("expõe nomes específicos para a função e remoção de cada piloto", () => {
+   it("exibe a função fixa 1P e permite remover o piloto", () => {
       render(
          <PilotSearchDropdown
             pilots={[
@@ -138,20 +141,16 @@ describe("controles de tripulação", () => {
             ]}
             onAdd={mocks.onAdd}
             onRemove={mocks.onRemove}
-            onUpdateFuncBordo={mocks.onUpdateFuncBordo}
             showSearch
          />
       );
 
-      fireEvent.change(
-         screen.getByRole("combobox", { name: "Função a bordo de CAP SILVA" }),
-         { target: { value: "IN" } }
-      );
+      expect(screen.getByText("1P")).not.toBeNull();
+      expect(screen.queryByRole("combobox")).toBeNull();
       fireEvent.click(
          screen.getByRole("button", { name: "Remover CAP SILVA" })
       );
 
-      expect(mocks.onUpdateFuncBordo).toHaveBeenCalledWith(7, "IN");
       expect(mocks.onRemove).toHaveBeenCalledWith(7);
    });
 });

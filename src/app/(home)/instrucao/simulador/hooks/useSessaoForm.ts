@@ -78,7 +78,7 @@ export function useSessaoForm({
                nome_guerra: crew.nome_guerra,
                p_g: crew.p_g,
                func: "pil",
-               func_bordo: prev.length === 0 ? "1P" : "2P",
+               func_bordo: "1P",
                ant: crew.ant,
                ult_promo: crew.ult_promo,
                ant_rel: crew.ant_rel,
@@ -89,12 +89,6 @@ export function useSessaoForm({
 
    const removePilot = useCallback((tripId: number) => {
       setSessionPilots((prev) => prev.filter((p) => p.trip_id !== tripId));
-   }, []);
-
-   const updateFuncBordo = useCallback((tripId: number, fb: string) => {
-      setSessionPilots((prev) =>
-         prev.map((p) => (p.trip_id === tripId ? { ...p, func_bordo: fb } : p))
-      );
    }, []);
 
    // Esforço aéreo SML (fixo do simulador)
@@ -196,7 +190,8 @@ export function useSessaoForm({
       smlEsfAer &&
       tiposMissaoData?.length &&
       !isDataError &&
-      sessionPilots.length > 0 &&
+      sessionPilots.length === 1 &&
+      sessionPilots[0]?.func_bordo === "1P" &&
       !isPending
    );
 
@@ -309,7 +304,6 @@ export function useSessaoForm({
       sessionPilots,
       addPilot,
       removePilot,
-      updateFuncBordo,
       smlEsfAer,
       tiposMissaoData,
       tvoo,

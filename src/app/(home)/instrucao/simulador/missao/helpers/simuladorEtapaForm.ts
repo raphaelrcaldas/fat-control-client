@@ -137,7 +137,7 @@ export function createSimuladorEtapaForm({
                   ant: crew.ant,
                   ult_promo: crew.ult_promo,
                   ant_rel: crew.ant_rel,
-                  funcBordo: etapa.assignedTrips.length === 0 ? "1P" : "2P",
+                  funcBordo: "1P",
                },
             },
          });
@@ -147,13 +147,6 @@ export function createSimuladorEtapaForm({
          dispatch({
             type: "REMOVE_TRIP",
             payload: { localId: etapa.localId, tripId },
-         });
-      },
-      updateFuncBordo: (tripId: number, funcBordo: string) => {
-         if (savingRef.current) return;
-         dispatch({
-            type: "UPDATE_FUNC_BORDO",
-            payload: { localId: etapa.localId, tripId, funcBordo },
          });
       },
       tipoMissaoId:

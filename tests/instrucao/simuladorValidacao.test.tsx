@@ -379,7 +379,12 @@ describe("edição bloqueada durante o salvamento", () => {
       const before = JSON.stringify(result.current.draft);
       act(() => {
          result.current.form!.removePilot(1);
-         result.current.form!.updateFuncBordo(1, "IN");
+         result.current.form!.addPilot({
+            id: 2,
+            trig: "TEN",
+            nome_guerra: "Segundo",
+            p_g: "TEN",
+         });
          result.current.form!.setData("2026-09-25");
          result.current.form!.setTipoMissaoId(1);
          result.current.setObs("durante o save");
