@@ -9,7 +9,7 @@ export function DesadaptadoBadge({ dsvDias }: DesadaptadoBadgeProps) {
    return (
       <div
          className="relative inline-flex items-center gap-1.5 overflow-hidden rounded-md border border-amber-600/40 px-2 py-0.5 text-[10px] font-bold tracking-widest text-amber-900 uppercase shadow-sm"
-         title="Tripulante desadaptado (45+ dias sem voo operacional)"
+         title="Tripulante desadaptado (46+ dias sem voo operacional)"
       >
          <span
             className={`absolute inset-y-0 left-0 w-1.5 ${stripes}`}
