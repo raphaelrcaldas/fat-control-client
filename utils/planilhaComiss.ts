@@ -17,8 +17,9 @@ function autoSizeColumn(colNumber: number, sheet: ExcelJS.Worksheet) {
 function createHeader(sheet: ExcelJS.Worksheet) {
    sheet.mergeCells("A2:A3");
    const postoGrad = sheet.getCell("A2");
-   postoGrad.value = "POSTO/GRAD";
-   sheet.getColumn(1).width = 14;
+   postoGrad.value = "P/G, QUADRO E ESP.";
+   postoGrad.alignment = { wrapText: true };
+   sheet.getColumn(1).width = 22;
 
    sheet.mergeCells("B2:B3");
    const nomeCompleto = sheet.getCell("B2");
@@ -145,7 +146,10 @@ export async function gerarRelatorio(comiss: ComissWithMiss) {
    const startRowData = 4;
    const totalRows = 3 + missoes.length;
 
-   sheet.getCell("A4").value = `${user.posto.short} ${user.esp}`.toUpperCase();
+   sheet.getCell("A4").value = [user.posto.short, user.quadro, user.esp]
+      .filter(Boolean)
+      .join(" ")
+      .toUpperCase();
    sheet.mergeCells(startRowData, 1, totalRows, 1);
 
    sheet.getCell("B4").value = user.nome_completo.toUpperCase();

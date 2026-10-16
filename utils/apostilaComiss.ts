@@ -20,8 +20,15 @@ export async function gerarRelatorioDocx(
 
       // Preparar dados do usuário
       const user = comiss.user;
-      const nameLabel =
-         `${user.p_g} ${user.esp} ${user.nome_completo} (${user.saram})`.toUpperCase();
+      const nameLabel = [
+         user.p_g,
+         user.quadro,
+         user.esp,
+         `${user.nome_completo} (${user.saram})`,
+      ]
+         .filter(Boolean)
+         .join(" ")
+         .toUpperCase();
 
       // Preparar dados das missões
       const modulos = (comiss.missoes || []).map((mis, index) => {
